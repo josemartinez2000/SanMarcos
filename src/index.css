@@ -1,0 +1,171 @@
+
+
+body {
+  background-color: #F5F1E6;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  color: #33553A;
+}
+
+.navbar {
+  background-color: #4C7A50;
+  padding: 15px 0;
+}
+
+.navbar-brand {
+  color: #F5F1E6 !important;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.nav-link {
+  color: #F5F1E6 !important;
+  margin-left: 15px;
+}
+
+.nav-link:hover {
+  color: #E4EEDB !important;
+}
+
+.boton-cuenta {
+  background-color: #F5F1E6;
+  color: #33553A !important;
+  font-weight: bold;
+  padding: 6px 18px;
+  border-radius: 6px;
+  margin-left: 15px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.boton-cuenta:hover {
+  background-color: #E4EEDB;
+  color: #33553A !important;
+}
+
+
+.inicio {
+  background-color: #E4EEDB;
+  padding: 80px 0;
+  border-bottom: 4px solid #4C7A50;
+}
+
+.inicio h1 {
+  color: #33553A;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.inicio .lead {
+  color: #4C7A50;
+}
+
+.img-inicio {
+  width: 100%;
+  max-width: 400¿px;
+  border-radius: 12px;
+}
+
+
+h2 {
+  color: #33553A;
+  font-weight: bold;
+}
+
+.img-nosotros {
+  width: 100%;
+  border-radius: 12px;
+  object-fit: cover;
+  max-height: 320px;
+}
+
+.caja-info {
+  background-color: #E4EEDB;
+  border-left: 5px solid #4C7A50;
+  border-radius: 8px;
+  padding: 20px 25px;
+}
+
+.caja-info ul {
+  margin-bottom: 0;
+  padding-left: 20px;
+}
+
+
+.fondo-verde {
+  background-color: #E4EEDB;
+}
+
+.tarjeta-noticia {
+  background-color: #F5F1E6;
+  border: none;
+  border-radius: 10px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.img-noticia {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+
+.tarjeta-noticia .card-title {
+  color: #33553A;
+  font-weight: bold;
+}
+
+.tarjeta-opcion {
+  background-color: #4C7A50;
+  color: #F5F1E6;
+  border-radius: 12px;
+  padding: 35px 25px;
+  height: 100%;
+}
+
+.tarjeta-opcion h4 {
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.boton-opcion {
+  background-color: #F5F1E6;
+  color: #33553A;
+  font-weight: bold;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 6px;
+  margin-top: 10px;
+}
+
+.boton-opcion:hover {
+  background-color: #E4EEDB;
+  color: #33553A;
+}
+
+
+footer {
+  background-color: #33553A;
+  color: #F5F1E6;
+}
+
+footer h5 {
+  color: #E4EEDB;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+footer hr {
+  border-color: #4C7A50;
+  opacity: 0.6;
+  margin: 20px 0;
+}
+.mapa-caja {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 4px solid #4C7A50;
+}
+.img-inicio.carousel img {
+  border-radius: 12px;
+  max-height: 320px;
+  object-fit: cover;
+}

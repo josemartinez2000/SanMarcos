@@ -1,0 +1,38 @@
+import { Routes, Route } from 'react-router-dom'
+import Navbar from './organism/Navbar'
+
+// Importacion las paginas
+import Principal from './pages/Principal'
+import Noticias from './pages/Noticias'
+import Catalogo from './pages/Catalogo'
+import Detalle from './pages/Detalle'
+import DetalleMed from './pages/DetalleMed'
+import Ficha from './pages/Ficha'
+import MedVac from './pages/MedVac'
+import Login from './pages/Login'
+import Registro from './pages/Registro'
+
+function App() {
+  return (
+    <>
+      <Navbar />
+
+      <Routes>
+        <Route path="/" element={<Principal />} />
+        <Route path="/noticias" element={<Noticias />} />
+        <Route path="/catalogo" element={<Catalogo />} />
+        <Route path="/med-vac" element={<MedVac />} />
+
+        {/* Rutas dinamicas para ver un item especifico, guiado la referencia */}
+        <Route path="/detalle/:id" element={<Detalle />} />
+        <Route path="/detalle-med/:id" element={<DetalleMed />} />
+        <Route path="/ficha/:id" element={<Ficha />} />
+
+        <Route path="/login" element={<Login />} />
+        <Route path="/registro" element={<Registro />} />
+      </Routes>
+    </>
+  )
+}
+
+export default App
