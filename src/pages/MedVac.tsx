@@ -19,6 +19,51 @@ const catalogoMed = [
         precio: "$18.000", 
         imagen: "/img/Vacunasextuplecanina.png", 
         detalles: "Refuerzo anual - Duración: 10 min" 
+    },
+    { 
+        id: "VA003", 
+        nombre: "Vacuna bivalente felina", 
+        categoria: "Vacunación", 
+        tipo: "Servicio", 
+        precio: "$15.000", 
+        imagen: "/img/Vacunabivalentefelina.jpg", 
+        detalles: "Refuerzo anual - Duración: 10 min" 
+    },
+    { 
+        id: "VA004", 
+        nombre: "Vacuna triple felina", 
+        categoria: "Vacunación", 
+        tipo: "Servicio", 
+        precio: "$17.000", 
+        imagen: "/img/Vacunatriplefelina.jpg", 
+        detalles: "Refuerzo anual - Duración: 10 min" 
+    },
+    { 
+        id: "VA005", 
+        nombre: "Vacuna Bordetella canina", 
+        categoria: "Vacunación", 
+        tipo: "Servicio", 
+        precio: "$14.000", 
+        imagen: "/img/VacunaBordetellacanina.jpg", 
+        detalles: "Tos de las perreras - Duración: 10 min" 
+    },
+    { 
+        id: "VA006", 
+        nombre: "Vacuna antirrábica felina", 
+        categoria: "Vacunación", 
+        tipo: "Servicio", 
+        precio: "$12.000", 
+        imagen: "/img/Vacuna antirrábica felina.jpg", 
+        detalles: "Duración: 10 min" 
+    },
+    { 
+        id: "ME001", 
+        nombre: "Amoxibay 250mg", 
+        categoria: "Antibióticos", 
+        tipo: "Medicamento", 
+        precio: "$4.200", 
+        imagen: "/img/Amoxibay250mg.jpg", 
+        detalles: "Principio Activo: Amoxicilina - Stock: 45" 
     }
 ];
 
