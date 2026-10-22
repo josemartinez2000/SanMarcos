@@ -6,9 +6,10 @@ interface CardProps {
   categoria: string;
   precio: string;
   imagen: string;
+  rutaBase?: string; 
 }
 
-function CardMedicamento({ id, nombre, categoria, precio, imagen }: CardProps) {
+function CardMedicamento({ id, nombre, categoria, precio, imagen, rutaBase = "/detalle" }: CardProps) {
   return (
     <div className="producto-card">
       <img src={imagen} alt={nombre} />
@@ -16,8 +17,7 @@ function CardMedicamento({ id, nombre, categoria, precio, imagen }: CardProps) {
       <p>{categoria}</p>
       <p className="precio-card" style={{ fontWeight: 'bold' }}>{precio}</p>
       
-      {/* Esto reemplaza tu antigua función onclick="verDetalle()" */}
-      <Link to={`/detalle/${id}`} className="btn-detalles boton-opcion" style={{ textDecoration: 'none' }}>
+      <Link to={`${rutaBase}/${id}`} className="btn-detalles boton-opcion" style={{ textDecoration: 'none' }}>
         Ver detalle
       </Link>
     </div>
