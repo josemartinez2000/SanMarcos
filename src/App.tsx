@@ -4,7 +4,7 @@ import Footer from './organism/Footer' // Lo importamos de forma global
 
 // Importacion las paginas
 import Principal from './pages/Principal'
-import Noticias from './pages/Noticias'
+
 import Catalogo from './pages/Catalogo'
 import Detalle from './pages/Detalle'
 import DetalleMed from './pages/DetalleMed'
@@ -22,7 +22,7 @@ function App() {
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Principal />} />
-          <Route path="/noticias" element={<Noticias />} />
+      
           <Route path="/catalogo" element={<Catalogo />} />
           <Route path="/med-vac" element={<MedVac />} />
 
