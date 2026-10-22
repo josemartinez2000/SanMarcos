@@ -1,4 +1,4 @@
-import Footer from '../organism/Footer';
+
 import CardMedicamento from '../molecules/CardMedicamento';
 
 const catalogoMed = [
@@ -272,7 +272,7 @@ function MedVac() {
           />
         ))}
       </div>
-      <Footer />
+      
     </>
   );
 }

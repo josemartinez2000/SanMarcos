@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import CardNoticia from '../molecules/CardNoticia';
-import Footer from '../organism/Footer';
 
 function Principal() {
   return (
@@ -120,7 +119,7 @@ function Principal() {
         </div>
       </section>
 
-      <Footer />
+      
     </>
   );
 }

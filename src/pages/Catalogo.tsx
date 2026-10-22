@@ -1,4 +1,4 @@
-import Footer from '../organism/Footer';
+
 import CardMedicamento from '../molecules/CardMedicamento';
 
 const catalogo = [
@@ -247,7 +247,7 @@ function Catalogo() {
         ))}
       </div>
 
-      <Footer />
+      
     </>
   );
 }

@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
-import Footer from '../organism/Footer';
+
 
 const catalogoMed = [
     { 
@@ -288,7 +288,7 @@ function DetalleMed() {
           </Link>
         </div>
       </div>
-      <Footer />
+      
     </>
   );
 }

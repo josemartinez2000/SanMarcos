@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import Navbar from './organism/Navbar'
+import Footer from './organism/Footer' // Lo importamos de forma global
 
 // Importacion las paginas
 import Principal from './pages/Principal'
@@ -14,24 +15,28 @@ import Registro from './pages/Registro'
 
 function App() {
   return (
-    <>
+    <div className="app-container">
       <Navbar />
 
-      <Routes>
-        <Route path="/" element={<Principal />} />
-        <Route path="/noticias" element={<Noticias />} />
-        <Route path="/catalogo" element={<Catalogo />} />
-        <Route path="/med-vac" element={<MedVac />} />
+      {/* Este contenedor empujará el footer hacia abajo */}
+      <main className="main-content">
+        <Routes>
+          <Route path="/" element={<Principal />} />
+          <Route path="/noticias" element={<Noticias />} />
+          <Route path="/catalogo" element={<Catalogo />} />
+          <Route path="/med-vac" element={<MedVac />} />
 
-        {/* Rutas dinamicas para ver un item especifico, guiado la referencia */}
-        <Route path="/detalle/:id" element={<Detalle />} />
-        <Route path="/detalle-med/:id" element={<DetalleMed />} />
-        <Route path="/ficha/:id" element={<Ficha />} />
+          <Route path="/detalle/:id" element={<Detalle />} />
+          <Route path="/detalle-med/:id" element={<DetalleMed />} />
+          <Route path="/ficha/:id" element={<Ficha />} />
 
-        <Route path="/login" element={<Login />} />
-        <Route path="/registro" element={<Registro />} />
-      </Routes>
-    </>
+          <Route path="/login" element={<Login />} />
+          <Route path="/registro" element={<Registro />} />
+        </Routes>
+      </main>
+
+      <Footer />
+    </div>
   )
 }
 

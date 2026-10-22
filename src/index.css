@@ -169,3 +169,12 @@ footer hr {
   max-height: 320px;
   object-fit: cover;
 }
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+}
