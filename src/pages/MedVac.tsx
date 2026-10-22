@@ -64,6 +64,69 @@ const catalogoMed = [
         precio: "$4.200", 
         imagen: "/img/Amoxibay250mg.jpg", 
         detalles: "Principio Activo: Amoxicilina - Stock: 45" 
+    },
+    { 
+        id: "ME002", 
+        nombre: "Enrox 50mg", 
+        categoria: "Antibióticos", 
+        tipo: "Medicamento", 
+        precio: "$6.800", 
+        imagen: "/img/Enrox50mg.jpg", 
+        detalles: "Principio Activo: Enrofloxacino - Stock: 30" 
+    },
+    { 
+        id: "ME003", 
+        nombre: "Metrobay 250mg", 
+        categoria: "Antibióticos", 
+        tipo: "Medicamento", 
+        precio: "$3.900", 
+        imagen: "/img/Metrobay 250mg.png", 
+        detalles: "Principio Activo: Metronidazol - Stock: 28" 
+    },
+    { 
+        id: "ME004", 
+        nombre: "Nexgard", 
+        categoria: "Antiparasitarios", 
+        tipo: "Medicamento", 
+        precio: "$9.500", 
+        imagen: "/img/Nexgard.jpg", 
+        detalles: "Principio Activo: Afoxolaner - Stock: 60" 
+    },
+    { 
+        id: "ME005", 
+        nombre: "Bravecto", 
+        categoria: "Antiparasitarios", 
+        tipo: "Medicamento", 
+        precio: "$18.900", 
+        imagen: "/img/Bravecto.png", 
+        detalles: "Principio Activo: Fluralaner - Stock: 40" 
+    },
+    { 
+        id: "ME006", 
+        nombre: "Revolution Plus", 
+        categoria: "Antiparasitarios", 
+        tipo: "Medicamento", 
+        precio: "$14.500", 
+        imagen: "/img/Revolution Plus.jpg", 
+        detalles: "Principio Activo: Selamectina+Sarolaner - Stock: 35" 
+    },
+    { 
+        id: "ME007", 
+        nombre: "Drontal Plus", 
+        categoria: "Antiparasitarios", 
+        tipo: "Medicamento", 
+        precio: "$3.200", 
+        imagen: "/img/Drontal Plus.jpg", 
+        detalles: "Principio Activo: Praziquantel+Pamoato - Stock: 80" 
+    },
+    { 
+        id: "ME008", 
+        nombre: "Milbemax Gato", 
+        categoria: "Antiparasitarios", 
+        tipo: "Medicamento", 
+        precio: "$6.800", 
+        imagen: "/img/Milbemax Gato.jpg", 
+        detalles: "Principio Activo: Milbemicina+Praziq. - Stock: 50" 
     }
 ];
 
@@ -79,7 +142,7 @@ function MedVac() {
             categoria={producto.categoria}
             precio={producto.precio}
             imagen={producto.imagen}
-            rutaBase="/detalle-med" // Indicamos que vaya a la vista de medicamentos
+            rutaBase="/detalle-med" 
           />
         ))}
       </div>
