@@ -1,14 +1,24 @@
 import Footer from '../organism/Footer';
 import CardMedicamento from '../molecules/CardMedicamento';
 
-
 const catalogoMed = [
     { 
-        id: "MV001", 
-        nombre: "Vacuna Antirrábica", 
-        categoria: "Vacunas", 
+        id: "VA001", 
+        nombre: "Vacuna antirrábica canina", 
+        categoria: "Vacunación", 
+        tipo: "Servicio", 
         precio: "$12.000", 
-        imagen: "/img/antirrabica.jpg" 
+        imagen: "/img/Vacunaantirrábicacanina.jpg", 
+        detalles: "Obligatoria por ley - Duración: 10 min" 
+    },
+    { 
+        id: "VA002", 
+        nombre: "Vacuna sextuple canina", 
+        categoria: "Vacunación", 
+        tipo: "Servicio", 
+        precio: "$18.000", 
+        imagen: "/img/Vacunasextuplecanina.png", 
+        detalles: "Refuerzo anual - Duración: 10 min" 
     }
 ];
 
@@ -24,10 +34,10 @@ function MedVac() {
             categoria={producto.categoria}
             precio={producto.precio}
             imagen={producto.imagen}
+            rutaBase="/detalle-med" // Indicamos que vaya a la vista de medicamentos
           />
         ))}
       </div>
-
       <Footer />
     </>
   );
