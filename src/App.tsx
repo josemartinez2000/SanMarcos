@@ -1,6 +1,10 @@
 import { Routes, Route } from 'react-router-dom'
 import Navbar from './organism/Navbar'
 import Footer from './organism/Footer' // Lo importamos de forma global
+import PrincipalAdmin from './pages/PrincipalAdmin'
+<Route path="/admin" element={<PrincipalAdmin />} />
+import Modificaciones from './pages/Modificaciones'
+<Route path="/modificaciones" element={<Modificaciones />} />
 
 // Importacion las paginas
 import Principal from './pages/Principal'
