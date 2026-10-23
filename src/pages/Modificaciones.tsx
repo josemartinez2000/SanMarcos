@@ -427,8 +427,11 @@ export default function Modificaciones() {
               <p className="card-text mb-3"><strong>Stock:</strong> {item.stock}</p>
               
               <div className="d-flex justify-content-between">
-                <button className="btn btn-sm btn-primary w-100 me-2" onClick={() => alert(`Editando ${item.nombre}`)}>
-                  Modificar
+                <button 
+                    className="btn btn-sm btn-primary w-100 me-2" 
+                    onClick={() => navigate('/detalle-mod', { state: { producto: item } })}
+                  >
+                    Modificar
                 </button>
                 <button className="btn btn-sm btn-danger w-100" onClick={() => alert(`Eliminando ${item.nombre}`)}>
                   Eliminar

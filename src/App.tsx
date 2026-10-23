@@ -6,6 +6,7 @@ import PrincipalAdmin from './pages/PrincipalAdmin'
 import Modificaciones from './pages/Modificaciones'
 <Route path="/modificaciones" element={<Modificaciones />} />
 import AgregarProducto from './pages/AgregarProducto';
+import DetalleMod from './pages/DetalleMod';
 
 // Importacion las paginas
 import Principal from './pages/Principal'
@@ -26,6 +27,8 @@ function App() {
       {/* Este contenedor empujará el footer hacia abajo */}
       <main className="main-content">
         <Routes>
+          <Route path="/detalle-mod" element={<DetalleMod />} />
+          
           <Route path="/agregar" element={<AgregarProducto />} />
 
           <Route path="/" element={<Principal />} />
