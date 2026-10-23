@@ -5,6 +5,7 @@ import PrincipalAdmin from './pages/PrincipalAdmin'
 <Route path="/admin" element={<PrincipalAdmin />} />
 import Modificaciones from './pages/Modificaciones'
 <Route path="/modificaciones" element={<Modificaciones />} />
+import AgregarProducto from './pages/AgregarProducto';
 
 // Importacion las paginas
 import Principal from './pages/Principal'
@@ -25,6 +26,8 @@ function App() {
       {/* Este contenedor empujará el footer hacia abajo */}
       <main className="main-content">
         <Routes>
+          <Route path="/agregar" element={<AgregarProducto />} />
+
           <Route path="/" element={<Principal />} />
       
           <Route path="/catalogo" element={<Catalogo />} />

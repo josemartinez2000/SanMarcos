@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Modificaciones() {
+  const navigate = useNavigate();
   
   const [inventario] = useState([
     // Servicios y Consultas
@@ -391,8 +392,7 @@ export default function Modificaciones() {
   ]);
 
   const agregarProducto = () => {
-    
-    alert('Función para agregar un nuevo producto/servicio al catálogo.');
+    navigate('/agregar');
   };
 
   return (
