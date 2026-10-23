@@ -1,5 +1,6 @@
-
-
+/* =========================================
+   ESTILOS BASE (style.css)
+========================================= */
 body {
   background-color: #F5F1E6;
   font-family: 'Segoe UI', Arial, sans-serif;
@@ -42,7 +43,6 @@ body {
   color: #33553A !important;
 }
 
-
 .inicio {
   background-color: #E4EEDB;
   padding: 80px 0;
@@ -61,10 +61,9 @@ body {
 
 .img-inicio {
   width: 100%;
-  max-width: 400¿px;
+  max-width: 400px;
   border-radius: 12px;
 }
-
 
 h2 {
   color: #33553A;
@@ -89,7 +88,6 @@ h2 {
   margin-bottom: 0;
   padding-left: 20px;
 }
-
 
 .fondo-verde {
   background-color: #E4EEDB;
@@ -142,7 +140,6 @@ h2 {
   color: #33553A;
 }
 
-
 footer {
   background-color: #33553A;
   color: #F5F1E6;
@@ -159,16 +156,144 @@ footer hr {
   opacity: 0.6;
   margin: 20px 0;
 }
+
 .mapa-caja {
   border-radius: 12px;
   overflow: hidden;
   border: 4px solid #4C7A50;
 }
+
 .img-inicio.carousel img {
   border-radius: 12px;
   max-height: 320px;
   object-fit: cover;
 }
+
+/* =========================================
+   ESTILOS ADMIN (Admin.css)
+========================================= */
+
+
+
+
+.contenedor {
+  border: 3px solid black;
+  border-radius: 6px;
+  box-shadow: 10px black;
+  background-color: white;
+  color: black;
+  font-family: Arial, Helvetica, sans-serif;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.contenedores {
+  display: flex;
+  gap: 10px;
+}
+
+.linkeado {
+  color: whitesmoke;
+  text-decoration: dashed;
+}
+
+.linkeado:hover {
+  color: rgb(227, 250, 250);
+  text-decoration: underline;
+}
+
+th, td {
+  border: 2px solid black;
+  padding: 10px;            
+  text-align: left;
+}
+
+/* =========================================
+   ESTILOS DE FICHAS (ficha.css)
+========================================= */
+.ficha-container {
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.ficha {
+  border: 1px solid #000;
+  padding: 25px;
+  margin-bottom: 20px;
+  background-color: #fff;
+}
+
+.lineas_escritura {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.lineas_escritura label {
+  font-weight: bold;
+  margin-right: 5px;
+  white-space: nowrap;
+}
+
+.input-line {
+  border: none;
+  border-bottom: 2px dotted #000;
+  background-color: transparent;
+  flex-grow: 1;
+  outline: none;
+  padding: 0 5px;
+  box-shadow: none !important;
+}
+
+.input-line:focus {
+  border-bottom: 2px solid #000;
+}
+
+.titulo_seccion {
+  text-decoration: underline;
+  font-weight: bold;
+  margin-top: 25px;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.textarea-clean {
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: vertical;
+  background-color: transparent;
+}
+
+.historial_examenes {
+  margin-bottom: 30px;
+}
+
+.historial_examenes p {
+  margin-bottom: 5px;
+}
+
+/* =========================================
+   ESTILOS DE TARJETAS DE PRODUCTO
+========================================= */
+.producto-card {
+  background-color: #9e9e9d;
+  border-left: 5px solid #2c2e2c;
+  border-radius: 10px;
+  padding: 20px;
+  width: 260px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* =========================================
+   FIJAR EL FOOTER 
+========================================= */
 .app-container {
   display: flex;
   flex-direction: column;
