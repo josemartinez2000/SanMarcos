@@ -1,58 +1,97 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import CampoFormulario from '../molecules/CampoFormulario';
 import Boton from '../atoms/Boton';
 
 export default function FormularioLogin() {
-  // useState reemplaza a document.getElementById().value
-  const [correo, setCorreo] = useState('');
-  const [clave, setClave] = useState('');
-  
-  // useNavigate reemplaza a window.location.href
   const navigate = useNavigate();
 
-  const ingreso = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault(); // Evita que la página se recargue
+  const [correo, setCorreo] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-    let formatoadmin = /^[^\s@]+@+sanmarcosadmin\.[^\s@]+$/;
-    let formatocliente = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const iniciarSesion = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
 
-    if (clave === "" || correo === "") {
-      alert("Complete todos los campos");
+    // 1. Validar campos vacíos
+    if (correo.trim() === '' || password.trim() === '') {
+      setError('Todos los campos son obligatorios.');
       return;
     }
 
-    if (formatoadmin.test(correo)) {
-      alert("Sesión iniciada como Administrador");
-     
-    } else if (formatocliente.test(correo)) {
-      navigate('/'); // Redirige a la página principal
+    // 2. Validar formato de correo básico
+    if (!correo.includes('@') || !correo.includes('.')) {
+      setError('Por favor, ingrese un correo electrónico válido.');
+      return;
+    }
+
+    // 3. Validar longitud mínima de contraseña
+    if (password.length < 4) {
+      setError('La contraseña debe tener al menos 4 caracteres.');
+      return;
+    }
+
+    setError('');
+
+    // 4. Determinar si es Admin o Cliente según el correo
+    const correoLimpio = correo.trim().toLowerCase();
+    const esAdmin = correoLimpio.includes('@sanmarcos.cl') || correoLimpio.includes('admin');
+
+    // Guardamos la sesión en localStorage (se mantiene hasta cerrar sesión manualmente)
+    localStorage.setItem('usuarioLogueado', correo.trim());
+    localStorage.setItem('rolUsuario', esAdmin ? 'admin' : 'cliente');
+
+    // Redirigimos según el rol
+    if (esAdmin) {
+      navigate('/admin');
     } else {
-      alert("Correo invalido");
+      navigate('/');
     }
   };
 
   return (
-    <section className="tarjeta-opcion" style={{ width: '50%', backgroundColor: '#223526', margin: 'auto', padding: '40px', color: 'white', borderRadius: '10px' }}>
-      <div style={{ marginLeft: '15%', marginRight: '15%' }}>
-        <h3 style={{ color: 'white' }}>Inicie Sesión</h3>
-        <br />
+    <div className="container my-5 d-flex justify-content-center">
+      <div 
+        className="p-4 rounded shadow" 
+        style={{ backgroundColor: '#223526', color: '#F5F1E6', maxWidth: '450px', width: '100%' }}
+      >
+        <h2 className="text-center fw-bold mb-4">Iniciar Sesión</h2>
+
+        {error !== '' && (
+          <div className="alert alert-danger py-2">{error}</div>
+        )}
+
         <form>
-          <CampoFormulario 
-            label="Correo:" 
-            tipo="email" 
-            valor={correo} 
-            onChange={(e) => setCorreo(e.target.value)} 
+          <CampoFormulario
+            label="Correo Electrónico:"
+            tipo="email"
+            valor={correo}
+            onChange={(e) => setCorreo(e.target.value)}
+            placeholder="ejemplo@correo.cl (usa admin@sanmarcos.cl para Admin)"
           />
-          <CampoFormulario 
-            label="Contraseña:" 
-            tipo="password" 
-            valor={clave} 
-            onChange={(e) => setClave(e.target.value)} 
+
+          <CampoFormulario
+            label="Contraseña:"
+            tipo="password"
+            valor={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Ingresa tu contraseña"
           />
-          <Boton texto="Ingresar" onClick={ingreso} />
+
+          <div className="d-grid gap-2 mt-4">
+            <Boton texto="Ingresar" onClick={iniciarSesion} />
+          </div>
         </form>
+
+        <div className="text-center mt-3">
+          <small>
+            ¿No tienes cuenta?{' '}
+            <Link to="/registro" style={{ color: '#A8C6B0', fontWeight: 'bold' }}>
+              Regístrate aquí
+            </Link>
+          </small>
+        </div>
       </div>
-    </section>
+    </div>
   );
 }
