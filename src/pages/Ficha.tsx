@@ -221,8 +221,8 @@ export default function Ficha() {
   const { id } = useParams();
   const navigate = useNavigate();
   
-  // Simulación de sesión: Cambia esto a 'false' para ver la vista de cliente
-  const isAdmin = true; 
+  
+  const isAdmin = localStorage.getItem('rolUsuario') === 'admin'; 
 
   // Estados del formulario
   const [medicamento, setMedicamento] = useState('');
