@@ -37,11 +37,11 @@ export default function FormularioLogin() {
     const correoLimpio = correo.trim().toLowerCase();
     const esAdmin = correoLimpio.includes('@sanmarcos.cl') || correoLimpio.includes('admin');
 
-    // Guardamos la sesión en localStorage (se mantiene hasta cerrar sesión manualmente)
+    // Se guarda la sesión en localStorage (se mantiene hasta cerrar sesión manualmente)
     localStorage.setItem('usuarioLogueado', correo.trim());
     localStorage.setItem('rolUsuario', esAdmin ? 'admin' : 'cliente');
 
-    // Redirigimos según el rol
+    // Se redirige según el rol
     if (esAdmin) {
       navigate('/admin');
     } else {
