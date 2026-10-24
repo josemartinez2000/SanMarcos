@@ -1,5 +1,4 @@
-
-import CardMedicamento from '../molecules/CardMedicamento';
+import GrillaCatalogo from '../organism/GrillaCatalogo';
 
 const catalogoMed = [
     { 
@@ -259,20 +258,12 @@ const catalogoMed = [
 function MedVac() {
   return (
     <>
-      <div className="catalogo-container mt-5 mb-5" id="catalogo_med">
-        {catalogoMed.map((producto) => (
-          <CardMedicamento
-            key={producto.id}
-            id={producto.id}
-            nombre={producto.nombre}
-            categoria={producto.categoria}
-            precio={producto.precio}
-            imagen={producto.imagen}
-            rutaBase="/detalle-med" 
-          />
-        ))}
-      </div>
-      
+      <header className="catalogo-header container-fluid px-4 mt-4">
+        <h1>Medicamentos y Vacunas</h1>
+        <p>Productos farmacéuticos y vacunas disponibles en nuestra clínica</p>
+      </header>
+
+      <GrillaCatalogo items={catalogoMed} rutaBase="/detalle-med" />
     </>
   );
 }

@@ -1,14 +1,15 @@
-
-import CardMedicamento from '../molecules/CardMedicamento';
+import GrillaCatalogo from '../organism/GrillaCatalogo';
 
 const catalogo = [
     { 
         id: "SV001", 
         nombre: "Consulta general", 
         categoria: "Consultas", 
-        tipo: "Servicio", precio: "$15.000", 
+        tipo: "Servicio", 
+        precio: "$15.000", 
         imagen: "/img/Consulta general.jpg", 
-        detalles: "Duración: 30 min" },
+        detalles: "Duración: 30 min" 
+    },
     { 
         id: "SV002", 
         nombre: "Consulta urgencia", 
@@ -17,14 +18,15 @@ const catalogo = [
         precio: "$25.000", 
         imagen: "/img/Consulta urgencia.jpg", 
         detalles: "Fuera de horario +$10.000 - Duración: 30 min"
-     },
+    },
     {
-         id: "SV003", 
-         nombre: "Control postoperatorio", 
-         categoria: "Consultas", 
-         tipo: "Servicio", precio: "$10.000", 
-         imagen: "/img/Control postoperatorio.jpg", 
-         detalles: "Duración: 20 min" 
+        id: "SV003", 
+        nombre: "Control postoperatorio", 
+        categoria: "Consultas", 
+        tipo: "Servicio", 
+        precio: "$10.000", 
+        imagen: "/img/Control postoperatorio.jpg", 
+        detalles: "Duración: 20 min" 
     },
     { 
         id: "SV004", 
@@ -33,7 +35,7 @@ const catalogo = [
         tipo: "Servicio", 
         precio: "$18.000", 
         imagen: "/img/Consulta ave conejo.jpg",
-         detalles: "Duración: 30 min" 
+        detalles: "Duración: 30 min" 
     },
     { 
         id: "SV005", 
@@ -72,23 +74,23 @@ const catalogo = [
         detalles: "Incluye anestesia y hospitalización 12h - Duración: 60 min" 
     },
     {
-         id: "CI004", 
-         nombre: "Esterilización macho felino", 
-         categoria: "Cirugía", 
-         tipo: "Servicio", 
-         precio: "$50.000", 
-         imagen: "/img/Esterilización macho felino.jpg", 
-         detalles: "Incluye anestesia - Duración: 45 min" 
-        },
+        id: "CI004", 
+        nombre: "Esterilización macho felino", 
+        categoria: "Cirugía", 
+        tipo: "Servicio", 
+        precio: "$50.000", 
+        imagen: "/img/Esterilización macho felino.jpg", 
+        detalles: "Incluye anestesia - Duración: 45 min" 
+    },
     { 
         id: "CI005", 
         nombre: "Extirpación de tumor cutáneo", 
         categoria: "Cirugía", 
         tipo: "Servicio",
-         precio: "$120.000", 
-         imagen: "/img/Extirpación de tumor cutáneo.jpg", 
-         detalles: "Precio referencial; varía según tamaño - Duración: 60 min" 
-        },
+        precio: "$120.000", 
+        imagen: "/img/Extirpación de tumor cutáneo.jpg", 
+        detalles: "Precio referencial; varía según tamaño - Duración: 60 min" 
+    },
     { 
         id: "CI006", 
         nombre: "Cesárea de urgencia",
@@ -229,25 +231,12 @@ const catalogo = [
 function Catalogo() {
   return (
     <>
-      <header className="catalogo-header">
+      <header className="catalogo-header container-fluid px-4 mt-4">
         <h1>Catálogo de Servicios</h1>
         <p>Encuentra la mejor atención y servicios para tu mascota</p>
       </header>
 
-      <div className="catalogo-container" id="catalogo">
-        {catalogo.map((producto) => (
-          <CardMedicamento
-            key={producto.id}
-            id={producto.id}
-            nombre={producto.nombre}
-            categoria={producto.categoria}
-            precio={producto.precio}
-            imagen={producto.imagen}
-          />
-        ))}
-      </div>
-
-      
+      <GrillaCatalogo items={catalogo} rutaBase="/detalle" />
     </>
   );
 }
