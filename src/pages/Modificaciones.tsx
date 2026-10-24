@@ -3,8 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 
 export default function Modificaciones() {
   const navigate = useNavigate();
-  
-  const [inventario] = useState([
+
+  const [inventario, setInventario] = useState([
     // Servicios y Consultas
     {
       id: "SV001",
@@ -391,20 +391,60 @@ export default function Modificaciones() {
     }
   ]);
 
+  // Estados para los filtros de búsqueda
+  const [busqueda, setBusqueda] = useState('');
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('Todas');
+
+  const categorias = [
+    "Todas",
+    "Consultas",
+    "Cirugía",
+    "Desparasitación",
+    "Exámenes",
+    "Otros",
+    "Vacunación",
+    "Antibióticos",
+    "Antiparasitarios",
+    "Antiinflamatorios",
+    "Dermatología",
+    "Digestivo",
+    "Cardíaco",
+    "Analgésicos",
+    "Vacunas",
+    "Suplementos"
+  ];
+
   const agregarProducto = () => {
     navigate('/agregar');
   };
 
+  // Elimina el producto del estado actual en pantalla
+  const eliminarProducto = (id: string) => {
+    const nuevaLista = inventario.filter((item) => item.id !== id);
+    setInventario(nuevaLista);
+  };
+
+  // Filtra los productos según texto y categoría
+  const productosFiltrados = inventario.filter((item) => {
+    const coincideTexto = 
+      item.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+      item.id.toLowerCase().includes(busqueda.toLowerCase());
+    
+    const coincideCategoria = 
+      categoriaSeleccionada === 'Todas' || item.categoria === categoriaSeleccionada;
+
+    return coincideTexto && coincideCategoria;
+  });
+
   return (
     <div className="container mt-4 mb-5">
       {/* Barra de acciones del Administrador */}
-      
       <div className="d-flex justify-content-between align-items-center p-3 mb-4 rounded" style={{ backgroundColor: 'rgb(61, 61, 61)' }}>
         <div>
           <button className="btn btn-success me-2" onClick={agregarProducto}>
             + Agregar Producto
           </button>
-          <Link to="/ficha/nueva" className="btn btn-outline-light">
+          <Link to="/ficha" className="btn btn-outline-light">
             Crear Ficha
           </Link>
         </div>
@@ -416,31 +456,69 @@ export default function Modificaciones() {
       <h2 style={{ fontWeight: 'bold' }}>Vista Catálogo (Inventario)</h2>
       <hr />
 
+      {/* Buscador y Filtro por Categoría */}
+      <div className="row mb-4 bg-white p-3 rounded shadow-sm">
+        <div className="col-md-6 mb-2">
+          <label className="form-label fw-bold">Buscar producto:</label>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Buscar por nombre o ID..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+          />
+        </div>
+        <div className="col-md-6 mb-2">
+          <label className="form-label fw-bold">Categoría:</label>
+          <select
+            className="form-select"
+            value={categoriaSeleccionada}
+            onChange={(e) => setCategoriaSeleccionada(e.target.value)}
+          >
+            {categorias.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       {/* Contenedor de los productos a modificar */}
-      <div className="d-flex flex-wrap gap-4 mt-4 justify-content-center">
-        {inventario.map((item) => (
-          <div key={item.id} className="card shadow-sm" style={{ width: '18rem' }}>
-            <div className="card-body">
-              <h5 className="card-title fw-bold">{item.nombre}</h5>
-              <h6 className="card-subtitle mb-2 text-muted">{item.categoria}</h6>
-              <p className="card-text mb-1"><strong>Precio:</strong> {item.precio}</p>
-              <p className="card-text mb-3"><strong>Stock:</strong> {item.stock}</p>
-              
-              <div className="d-flex justify-content-between">
-                <button 
+      {productosFiltrados.length === 0 ? (
+        <p className="text-center mt-4 fw-bold">No se encontraron productos.</p>
+      ) : (
+        <div className="d-flex flex-wrap gap-4 mt-4 justify-content-center">
+          {productosFiltrados.map((item) => (
+            <div key={item.id} className="card shadow-sm" style={{ width: '18rem' }}>
+              <div className="card-body">
+                <h5 className="card-title fw-bold">{item.nombre}</h5>
+                <h6 className="card-subtitle mb-2 text-muted">{item.categoria}</h6>
+                <p className="card-text mb-1"><strong>Precio:</strong> {item.precio}</p>
+                <p className="card-text mb-3"><strong>Stock:</strong> {item.stock}</p>
+                
+                <div className="d-flex justify-content-between">
+                  <button 
                     className="btn btn-sm btn-primary w-100 me-2" 
-                    onClick={() => navigate('/detalle-mod', { state: { producto: item } })}
+                    onClick={() => {
+                      localStorage.setItem("producto", JSON.stringify(item));
+                      navigate(`/detalle-mod/${item.id}`);
+                    }}
                   >
                     Modificar
-                </button>
-                <button className="btn btn-sm btn-danger w-100" onClick={() => alert(`Eliminando ${item.nombre}`)}>
-                  Eliminar
-                </button>
+                  </button>
+                  <button 
+                    className="btn btn-sm btn-danger w-100" 
+                    onClick={() => eliminarProducto(item.id)}
+                  >
+                    Eliminar
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

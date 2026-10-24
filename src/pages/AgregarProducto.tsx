@@ -6,27 +6,32 @@ import Boton from '../atoms/Boton';
 export default function AgregarProducto() {
   const navigate = useNavigate();
 
-  // Estados para capturar los datos del nuevo producto 
   const [id, setId] = useState('');
   const [nombre, setNombre] = useState('');
   const [categoria, setCategoria] = useState('');
   const [precio, setPrecio] = useState('');
-  const [tipo, setTipo] = useState('Servicio'); 
+  const [tipo, setTipo] = useState('Servicio');
   const [detalles, setDetalles] = useState('');
 
   const guardarProducto = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     
-    //Validacion
     if (id === '' || nombre === '' || precio === '') {
       alert("Por favor, complete al menos el ID, Nombre y Precio.");
       return;
     }
 
-    
+    const nuevoProducto = {
+      id,
+      nombre,
+      categoria,
+      tipo,
+      precio,
+      detalles
+    };
+
+    localStorage.setItem("nuevoProducto", JSON.stringify(nuevoProducto));
     alert(`¡Producto "${nombre}" agregado exitosamente al catálogo!`);
-    
-    // Volvemos a la vista de modificaciones
     navigate('/modificaciones');
   };
 
