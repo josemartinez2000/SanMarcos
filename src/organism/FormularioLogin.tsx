@@ -67,7 +67,6 @@ export default function FormularioLogin() {
             tipo="email"
             valor={correo}
             onChange={(e) => setCorreo(e.target.value)}
-            placeholder="ejemplo@correo.cl (usa admin@sanmarcos.cl para Admin)"
           />
 
           <CampoFormulario
@@ -75,7 +74,6 @@ export default function FormularioLogin() {
             tipo="password"
             valor={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Ingresa tu contraseña"
           />
 
           <div className="d-grid gap-2 mt-4">
