@@ -23,7 +23,8 @@ test("muestra un mensaje de error cuando se presiona Ingresar con los campos vac
     </MemoryRouter>
   );
 
-  fireEvent.click(screen.getByRole("button", { name: "Ingresar" }));
+  const botones = screen.getAllByRole("button", { name: "Ingresar" });
+  fireEvent.click(botones[0]);
 
   const error = screen.getByText("Todos los campos son obligatorios.");
   expect(error.textContent).toBe("Todos los campos son obligatorios.");

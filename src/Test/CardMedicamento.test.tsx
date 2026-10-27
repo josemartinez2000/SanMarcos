@@ -37,7 +37,8 @@ test("la tarjeta guarda el producto en localStorage al hacer clic en Ver detalle
     </MemoryRouter>
   );
 
-  fireEvent.click(screen.getByRole("button", { name: "Ver detalle" }));
+  const botones = screen.getAllByRole("button", { name: "Ver detalle" });
+  fireEvent.click(botones[0]);
 
   expect(localStorage.getItem("productoSeleccionado")).toContain("Nexgard");
 });
