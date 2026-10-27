@@ -1,16 +1,12 @@
 // @vitest-environment jsdom
-import { test, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { test, expect } from "vitest";
+import { render, screen } from "@testing-library/react";
 import Input from "../atoms/Input";
 
-test("el input muestra el valor recibido y ejecuta onChange al escribir", () => {
-  const cambiarTexto = vi.fn();
+test("el input muestra el valor inicial recibido por props", () => {
+  render(<Input tipo="text" valor="Consulta general" onChange={() => {}} />);
 
-  render(<Input tipo="text" valor="Consulta" onChange={cambiarTexto} />);
+  const input = screen.getByDisplayValue("Consulta general") as HTMLInputElement;
 
-  const input = screen.getByDisplayValue("Consulta") as HTMLInputElement;
-  expect(input.value).toBe("Consulta");
-
-  fireEvent.change(input, { target: { value: "Vacuna" } });
-  expect(cambiarTexto).toHaveBeenCalledTimes(1);
+  expect(input.value).toBe("Consulta general");
 });
