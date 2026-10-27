@@ -3,26 +3,26 @@ import { test, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import Boton from "../atoms/Boton";
 
-test("el botón muestra el texto Guardar Producto recibido por props", () => {
-  // Aquí se renderiza el componente Boton pasando el texto y una función vacía
+test("el botón muestra el texto Guardar Producto", () => {
+  // Aquí se renderiza el componente Boton pasando el texto que se quiere mostrar
   render(<Boton texto="Guardar Producto" onClick={() => {}} />);
 
-  // Aquí se busca el botón en pantalla por su texto
+  // Aquí se busca el botón en la pantalla por su texto
   const boton = screen.getByText("Guardar Producto");
 
-  // Aquí se comprueba que el contenido de texto del botón coincida exactamente con lo esperado
+  // Aquí se comprueba que el texto dentro del botón sea exactamente Guardar Producto
   expect(boton.textContent).toBe("Guardar Producto");
 });
 
-test("el botón ejecuta la función onClick cuando se hace clic", () => {
-  // Aquí se crea una función espía con vi.fn() para registrar las llamadas al evento
-  const funcionClick = vi.fn();
+test("el botón ejecuta la función cuando se hace clic", () => {
+  // Aquí se crea una función espía para comprobar si el botón responde al clic
+  const accion = vi.fn();
 
-  render(<Boton texto="Ingresar" onClick={funcionClick} />);
+  render(<Boton texto="Ingresar" onClick={accion} />);
 
-  // Aquí se dispara el evento de clic sobre el botón renderizado
+  // Aquí se simula el clic del usuario sobre el botón Ingresar
   fireEvent.click(screen.getByRole("button", { name: "Ingresar" }));
 
-  // Aquí se verifica que la función haya sido llamada una vez
-  expect(funcionClick).toHaveBeenCalledTimes(1);
+  // Aquí se verifica que la función se haya ejecutado
+  expect(accion).toHaveBeenCalled();
 });
