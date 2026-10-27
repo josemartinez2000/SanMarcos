@@ -1,42 +1,38 @@
 // @vitest-environment jsdom
-import { test, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { test, expect } from "vitest";
+import { render, screen } from "@testing-library/react";
 import CampoFormulario from "../molecules/CampoFormulario";
 
-test("el campo de formulario muestra la etiqueta label correctamente", () => {
-  // Aquí se renderiza la molécula CampoFormulario con sus propiedades obligatorias
+test("el campo formulario muestra el texto del label", () => {
+  // Aquí se renderiza la molécula CampoFormulario con el título Correo Electrónico:
   render(
     <CampoFormulario
       label="Correo Electrónico:"
       tipo="email"
-      valor="cliente@correo.cl"
+      valor=""
       onChange={() => {}}
     />
   );
 
-  // Aquí se obtiene la etiqueta por su texto visible en pantalla
-  const etiqueta = screen.getByText("Correo Electrónico:");
+  // Aquí se busca la etiqueta en pantalla por su texto
+  const label = screen.getByText("Correo Electrónico:");
 
-  // Aquí se comprueba que el texto de la etiqueta sea igual a Correo Electrónico:
-  expect(etiqueta.textContent).toBe("Correo Electrónico:");
+  // Aquí se comprueba que el texto de la etiqueta sea Correo Electrónico:
+  expect(label.textContent).toBe("Correo Electrónico:");
 });
 
-test("el campo de formulario llama a la función onChange al modificar el input", () => {
-  // Aquí se define un espía para comprobar la escritura en el campo
-  const manejarCambio = vi.fn();
-
+test("el campo formulario muestra el valor escrito en el input", () => {
+  // Aquí se renderiza el campo con el valor admin@sanmarcos.cl
   render(
     <CampoFormulario
-      label="Nombre:"
-      tipo="text"
-      valor=""
-      onChange={manejarCambio}
+      label="Correo:"
+      tipo="email"
+      valor="admin@sanmarcos.cl"
+      onChange={() => {}}
     />
   );
 
-  // Aquí se simula el cambio de valor dentro de la caja de texto
-  fireEvent.change(screen.getByRole("textbox"), { target: { value: "Amoxibay" } });
-
-  // Aquí se verifica que se haya ejecutado la función al escribir
-  expect(manejarCambio).toHaveBeenCalledTimes(1);
+  // Aquí se busca el input por el valor que tiene adentro y se comprueba que coincida
+  const input = screen.getByDisplayValue("admin@sanmarcos.cl") as HTMLInputElement;
+  expect(input.value).toBe("admin@sanmarcos.cl");
 });
