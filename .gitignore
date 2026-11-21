@@ -26,4 +26,5 @@ dist-ssr
 node_modules/
 dist/
 target/
-.mvn/
+.mvn/*
+!.mvn/wrapper/
