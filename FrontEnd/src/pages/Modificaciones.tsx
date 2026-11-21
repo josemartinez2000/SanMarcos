@@ -1,451 +1,137 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import {
+  API_MEDICAMENTOS,
+  API_SERVICIOS,
+  formatearPrecio,
+  type Medicamento,
+  type Servicio
+} from '../services/api';
+
+interface ItemInventario {
+  id: number;
+  tipo: 'Servicio' | 'Medicamento';
+  codigo: string;
+  nombre: string;
+  categoria: string;
+  precio: number;
+  stock?: number;
+  duracion?: string;
+}
 
 export default function Modificaciones() {
   const navigate = useNavigate();
 
-  const [inventario, setInventario] = useState([
-    // Servicios y Consultas
-    {
-      id: "SV001",
-      nombre: "Consulta general",
-      categoria: "Consultas",
-      precio: "$15.000",
-      stock: "N/A"
-    },
-    {
-      id: "SV002",
-      nombre: "Consulta urgencia",
-      categoria: "Consultas",
-      precio: "$25.000",
-      stock: "N/A"
-    },
-    {
-      id: "SV003",
-      nombre: "Control postoperatorio",
-      categoria: "Consultas",
-      precio: "$10.000",
-      stock: "N/A"
-    },
-    {
-      id: "SV004",
-      nombre: "Consulta ave / conejo",
-      categoria: "Consultas",
-      precio: "$18.000",
-      stock: "N/A"
-    },
-    {
-      id: "SV005",
-      nombre: "Segunda opinión médica",
-      categoria: "Consultas",
-      precio: "$20.000",
-      stock: "N/A"
-    },
-
-    // Cirugías
-    {
-      id: "CI001",
-      nombre: "Esterilización hembra canina",
-      categoria: "Cirugía",
-      precio: "$80.000",
-      stock: "N/A"
-    },
-    {
-      id: "CI002",
-      nombre: "Esterilización macho canino",
-      categoria: "Cirugía",
-      precio: "$60.000",
-      stock: "N/A"
-    },
-    {
-      id: "CI003",
-      nombre: "Esterilización hembra felina",
-      categoria: "Cirugía",
-      precio: "$65.000",
-      stock: "N/A"
-    },
-    {
-      id: "CI004",
-      nombre: "Esterilización macho felino",
-      categoria: "Cirugía",
-      precio: "$50.000",
-      stock: "N/A"
-    },
-    {
-      id: "CI005",
-      nombre: "Extirpación de tumor cutáneo",
-      categoria: "Cirugía",
-      precio: "$120.000",
-      stock: "N/A"
-    },
-    {
-      id: "CI006",
-      nombre: "Cesárea de urgencia",
-      categoria: "Cirugía",
-      precio: "$180.000",
-      stock: "N/A"
-    },
-
-    // Desparasitación
-    {
-      id: "DE001",
-      nombre: "Desparasitación interna pequeños",
-      categoria: "Desparasitación",
-      precio: "$8.000",
-      stock: "N/A"
-    },
-    {
-      id: "DE002",
-      nombre: "Desparasitación interna medianos",
-      categoria: "Desparasitación",
-      precio: "$9.500",
-      stock: "N/A"
-    },
-    {
-      id: "DE003",
-      nombre: "Desparasitación interna grandes",
-      categoria: "Desparasitación",
-      precio: "$11.000",
-      stock: "N/A"
-    },
-    {
-      id: "DE004",
-      nombre: "Desparasitación interna felina",
-      categoria: "Desparasitación",
-      precio: "$8.000",
-      stock: "N/A"
-    },
-    {
-      id: "DE005",
-      nombre: "Antiparasitario externo (pipeta)",
-      categoria: "Desparasitación",
-      precio: "$7.500",
-      stock: "N/A"
-    },
-
-    // Exámenes
-    {
-      id: "EX001",
-      nombre: "Hemograma completo",
-      categoria: "Exámenes",
-      precio: "$22.000",
-      stock: "N/A"
-    },
-    {
-      id: "EX002",
-      nombre: "Perfil bioquímico completo",
-      categoria: "Exámenes",
-      precio: "$35.000",
-      stock: "N/A"
-    },
-    {
-      id: "EX003",
-      nombre: "Radiografía (1 proyección)",
-      categoria: "Exámenes",
-      precio: "$28.000",
-      stock: "N/A"
-    },
-    {
-      id: "EX004",
-      nombre: "Ecografía abdominal",
-      categoria: "Exámenes",
-      precio: "$45.000",
-      stock: "N/A"
-    },
-    {
-      id: "EX005",
-      nombre: "Test de leishmaniasis",
-      categoria: "Exámenes",
-      precio: "$18.000",
-      stock: "N/A"
-    },
-
-    // Otros
-    {
-      id: "OT001",
-      nombre: "Corte de uñas",
-      categoria: "Otros",
-      precio: "$5.000",
-      stock: "N/A"
-    },
-    {
-      id: "OT002",
-      nombre: "Limpieza dental",
-      categoria: "Otros",
-      precio: "$55.000",
-      stock: "N/A"
-    },
-    {
-      id: "OT003",
-      nombre: "Microchip identificación",
-      categoria: "Otros",
-      precio: "$15.000",
-      stock: "N/A"
-    },
-    {
-      id: "OT004",
-      nombre: "Hospitalización (por día)",
-      categoria: "Otros",
-      precio: "$30.000",
-      stock: "N/A"
-    },
-
-    // Vacunas Clínicas
-    {
-      id: "VA001",
-      nombre: "Vacuna antirrábica canina",
-      categoria: "Vacunación",
-      precio: "$12.000",
-      stock: "50"
-    },
-    {
-      id: "VA002",
-      nombre: "Vacuna sextuple canina",
-      categoria: "Vacunación",
-      precio: "$18.000",
-      stock: "35"
-    },
-    {
-      id: "VA003",
-      nombre: "Vacuna bivalente felina",
-      categoria: "Vacunación",
-      precio: "$15.000",
-      stock: "40"
-    },
-    {
-      id: "VA004",
-      nombre: "Vacuna triple felina",
-      categoria: "Vacunación",
-      precio: "$17.000",
-      stock: "25"
-    },
-    {
-      id: "VA005",
-      nombre: "Vacuna Bordetella canina",
-      categoria: "Vacunación",
-      precio: "$14.000",
-      stock: "30"
-    },
-    {
-      id: "VA006",
-      nombre: "Vacuna antirrábica felina",
-      categoria: "Vacunación",
-      precio: "$12.000",
-      stock: "55"
-    },
-
-    // Medicamentos y Suplementos
-    {
-      id: "ME001",
-      nombre: "Amoxibay 250mg",
-      categoria: "Antibióticos",
-      precio: "$4.200",
-      stock: "45"
-    },
-    {
-      id: "ME002",
-      nombre: "Enrox 50mg",
-      categoria: "Antibióticos",
-      precio: "$6.800",
-      stock: "30"
-    },
-    {
-      id: "ME003",
-      nombre: "Metrobay 250mg",
-      categoria: "Antibióticos",
-      precio: "$3.900",
-      stock: "28"
-    },
-    {
-      id: "ME004",
-      nombre: "Nexgard",
-      categoria: "Antiparasitarios",
-      precio: "$9.500",
-      stock: "60"
-    },
-    {
-      id: "ME005",
-      nombre: "Bravecto",
-      categoria: "Antiparasitarios",
-      precio: "$18.900",
-      stock: "40"
-    },
-    {
-      id: "ME006",
-      nombre: "Revolution Plus",
-      categoria: "Antiparasitarios",
-      precio: "$14.500",
-      stock: "35"
-    },
-    {
-      id: "ME007",
-      nombre: "Drontal Plus",
-      categoria: "Antiparasitarios",
-      precio: "$3.200",
-      stock: "80"
-    },
-    {
-      id: "ME008",
-      nombre: "Milbemax Gato",
-      categoria: "Antiparasitarios",
-      precio: "$6.800",
-      stock: "50"
-    },
-    {
-      id: "ME009",
-      nombre: "Meloxicam 1mg",
-      categoria: "Antiinflamatorios",
-      precio: "$4.500",
-      stock: "55"
-    },
-    {
-      id: "ME010",
-      nombre: "Carprofen 50mg",
-      categoria: "Antiinflamatorios",
-      precio: "$9.800",
-      stock: "30"
-    },
-    {
-      id: "ME011",
-      nombre: "Clorhexidina shampoo",
-      categoria: "Dermatología",
-      precio: "$8.900",
-      stock: "25"
-    },
-    {
-      id: "ME012",
-      nombre: "Malaseb shampoo",
-      categoria: "Dermatología",
-      precio: "$12.500",
-      stock: "20"
-    },
-    {
-      id: "ME013",
-      nombre: "Apoquel 16mg",
-      categoria: "Dermatología",
-      precio: "$22.000",
-      stock: "18"
-    },
-    {
-      id: "ME014",
-      nombre: "Probifor",
-      categoria: "Digestivo",
-      precio: "$5.600",
-      stock: "40"
-    },
-    {
-      id: "ME015",
-      nombre: "Omeprazol 10mg vet",
-      categoria: "Digestivo",
-      precio: "$3.800",
-      stock: "35"
-    },
-    {
-      id: "ME016",
-      nombre: "Vetmedin 2.5mg",
-      categoria: "Cardíaco",
-      precio: "$28.000",
-      stock: "15"
-    },
-    {
-      id: "ME017",
-      nombre: "Tramadol 50mg vet",
-      categoria: "Analgésicos",
-      precio: "$5.200",
-      stock: "22"
-    },
-    {
-      id: "ME018",
-      nombre: "Nobivac DHPPi",
-      categoria: "Vacunas",
-      precio: "$8.500",
-      stock: "48"
-    },
-    {
-      id: "ME019",
-      nombre: "Nobivac Rabies",
-      categoria: "Vacunas",
-      precio: "$5.800",
-      stock: "60"
-    },
-    {
-      id: "ME020",
-      nombre: "Felocell CVR",
-      categoria: "Vacunas",
-      precio: "$7.200",
-      stock: "36"
-    },
-    {
-      id: "ME021",
-      nombre: "Omega vet 3-6-9",
-      categoria: "Suplementos",
-      precio: "$9.900",
-      stock: "30"
-    },
-    {
-      id: "ME022",
-      nombre: "Condrovet forte",
-      categoria: "Suplementos",
-      precio: "$14.500",
-      stock: "25"
-    }
-  ]);
+  const [inventario, setInventario] = useState<ItemInventario[]>([]);
+  const [cargando, setCargando] = useState(true);
+  const [errores, setErrores] = useState<string[]>([]);
+  const [eliminando, setEliminando] = useState<string | null>(null);
+  // Al incrementar este contador se vuelve a consultar el inventario
+  const [recarga, setRecarga] = useState(0);
 
   // Estados para los filtros de búsqueda
   const [busqueda, setBusqueda] = useState('');
+  const [tipoSeleccionado, setTipoSeleccionado] = useState('Todos');
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('Todas');
 
-  const categorias = [
-    "Todas",
-    "Consultas",
-    "Cirugía",
-    "Desparasitación",
-    "Exámenes",
-    "Otros",
-    "Vacunación",
-    "Antibióticos",
-    "Antiparasitarios",
-    "Antiinflamatorios",
-    "Dermatología",
-    "Digestivo",
-    "Cardíaco",
-    "Analgésicos",
-    "Vacunas",
-    "Suplementos"
-  ];
+  // Carga servicios (8083) y medicamentos (8082) desde MySQL
+  useEffect(() => {
+    const cargarInventario = async () => {
+      const nuevosErrores: string[] = [];
+      let servicios: ItemInventario[] = [];
+      let medicamentos: ItemInventario[] = [];
+
+      try {
+        const respuesta = await fetch(API_SERVICIOS);
+        if (!respuesta.ok) throw new Error();
+        const datos: Servicio[] = await respuesta.json();
+        servicios = datos.map((s) => ({
+          id: s.id, tipo: 'Servicio', codigo: s.codigo, nombre: s.nombre,
+          categoria: s.categoria, precio: s.precio, duracion: s.duracion
+        }));
+      } catch {
+        nuevosErrores.push('No se pudieron cargar los servicios (servicios-service, puerto 8083).');
+      }
+
+      try {
+        const respuesta = await fetch(API_MEDICAMENTOS);
+        if (!respuesta.ok) throw new Error();
+        const datos: Medicamento[] = await respuesta.json();
+        medicamentos = datos.map((m) => ({
+          id: m.id, tipo: 'Medicamento', codigo: m.codigo, nombre: m.nombre,
+          categoria: m.categoria, precio: m.precio, stock: m.stock
+        }));
+      } catch {
+        nuevosErrores.push('No se pudieron cargar los medicamentos (medicamentos-service, puerto 8082).');
+      }
+
+      setInventario([...servicios, ...medicamentos]);
+      setErrores(nuevosErrores);
+      setCargando(false);
+    };
+    cargarInventario();
+  }, [recarga]);
 
   const agregarProducto = () => {
     navigate('/agregar');
   };
 
-  // Elimina el producto del estado actual en pantalla
-  const eliminarProducto = (id: string) => {
-    const nuevaLista = inventario.filter((item) => item.id !== id);
-    setInventario(nuevaLista);
+  // Elimina el registro en MySQL y refresca la lista
+  const eliminarProducto = async (item: ItemInventario) => {
+    const confirmado = window.confirm(`¿Seguro que desea eliminar "${item.nombre}" (${item.codigo})? Esta acción no se puede deshacer.`);
+    if (!confirmado) return;
+
+    const clave = `${item.tipo}-${item.id}`;
+    setEliminando(clave);
+    try {
+      const url = item.tipo === 'Servicio' ? API_SERVICIOS : API_MEDICAMENTOS;
+      const respuesta = await fetch(`${url}/${item.id}`, { method: 'DELETE' });
+      if (!respuesta.ok) throw new Error();
+      setRecarga((valor) => valor + 1);
+    } catch {
+      alert('No se pudo eliminar el producto. Intente nuevamente.');
+    } finally {
+      setEliminando(null);
+    }
   };
 
-  // Filtra los productos según texto y categoría
+  const modificarProducto = (item: ItemInventario) => {
+    localStorage.setItem('producto', JSON.stringify(item));
+    navigate(`/detalle-mod/${item.id}?tipo=${item.tipo === 'Servicio' ? 'servicio' : 'medicamento'}`);
+  };
+
+  // Categorías disponibles según el tipo elegido
+  const categorias = ['Todas'];
+  inventario
+    .filter((item) => tipoSeleccionado === 'Todos' || item.tipo === tipoSeleccionado)
+    .forEach((item) => {
+      if (!categorias.includes(item.categoria)) {
+        categorias.push(item.categoria);
+      }
+    });
+
+  // Filtra los productos según texto, tipo y categoría
   const productosFiltrados = inventario.filter((item) => {
-    const coincideTexto = 
+    const coincideTexto =
       item.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-      item.id.toLowerCase().includes(busqueda.toLowerCase());
-    
-    const coincideCategoria = 
+      item.codigo.toLowerCase().includes(busqueda.toLowerCase());
+    const coincideTipo = tipoSeleccionado === 'Todos' || item.tipo === tipoSeleccionado;
+    const coincideCategoria =
       categoriaSeleccionada === 'Todas' || item.categoria === categoriaSeleccionada;
 
-    return coincideTexto && coincideCategoria;
+    return coincideTexto && coincideTipo && coincideCategoria;
   });
 
   return (
     <div className="container mt-4 mb-5">
       {/* Barra de acciones del Administrador */}
-      <div className="d-flex justify-content-between align-items-center p-3 mb-4 rounded" style={{ backgroundColor: 'rgb(61, 61, 61)' }}>
+      <div className="d-flex justify-content-between align-items-center p-3 mb-4 rounded flex-wrap gap-2" style={{ backgroundColor: 'rgb(61, 61, 61)' }}>
         <div>
           <button className="btn btn-success me-2" onClick={agregarProducto}>
             + Agregar Producto
           </button>
           <Link to="/ficha" className="btn btn-outline-light">
-            Crear Ficha
+            Fichas Médicas
           </Link>
         </div>
         <Link to="/admin" className="btn btn-secondary">
@@ -456,19 +142,38 @@ export default function Modificaciones() {
       <h2 style={{ fontWeight: 'bold' }}>Vista Catálogo (Inventario)</h2>
       <hr />
 
-      {/* Buscador y Filtro por Categoría */}
+      {errores.map((error) => (
+        <div key={error} className="alert alert-danger py-2">{error}</div>
+      ))}
+
+      {/* Buscador y filtros por tipo y categoría */}
       <div className="row mb-4 bg-white p-3 rounded shadow-sm">
-        <div className="col-md-6 mb-2">
+        <div className="col-md-4 mb-2">
           <label className="form-label fw-bold">Buscar producto:</label>
           <input
             type="text"
             className="form-control"
-            placeholder="Buscar por nombre o ID..."
+            placeholder="Buscar por nombre o código..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
           />
         </div>
-        <div className="col-md-6 mb-2">
+        <div className="col-md-4 mb-2">
+          <label className="form-label fw-bold">Gestionar:</label>
+          <select
+            className="form-select"
+            value={tipoSeleccionado}
+            onChange={(e) => {
+              setTipoSeleccionado(e.target.value);
+              setCategoriaSeleccionada('Todas');
+            }}
+          >
+            <option value="Todos">Servicios y Medicamentos</option>
+            <option value="Servicio">Solo Servicios</option>
+            <option value="Medicamento">Solo Medicamentos</option>
+          </select>
+        </div>
+        <div className="col-md-4 mb-2">
           <label className="form-label fw-bold">Categoría:</label>
           <select
             className="form-select"
@@ -485,38 +190,51 @@ export default function Modificaciones() {
       </div>
 
       {/* Contenedor de los productos a modificar */}
-      {productosFiltrados.length === 0 ? (
+      {cargando ? (
+        <div className="text-center my-5">
+          <div className="spinner-border text-success" role="status"></div>
+          <p className="mt-2">Cargando inventario...</p>
+        </div>
+      ) : productosFiltrados.length === 0 ? (
         <p className="text-center mt-4 fw-bold">No se encontraron productos.</p>
       ) : (
         <div className="d-flex flex-wrap gap-4 mt-4 justify-content-center">
-          {productosFiltrados.map((item) => (
-            <div key={item.id} className="card shadow-sm" style={{ width: '18rem' }}>
-              <div className="card-body">
-                <h5 className="card-title fw-bold">{item.nombre}</h5>
-                <h6 className="card-subtitle mb-2 text-muted">{item.categoria}</h6>
-                <p className="card-text mb-1"><strong>Precio:</strong> {item.precio}</p>
-                <p className="card-text mb-3"><strong>Stock:</strong> {item.stock}</p>
-                
-                <div className="d-flex justify-content-between">
-                  <button 
-                    className="btn btn-sm btn-primary w-100 me-2" 
-                    onClick={() => {
-                      localStorage.setItem("producto", JSON.stringify(item));
-                      navigate(`/detalle-mod/${item.id}`);
-                    }}
-                  >
-                    Modificar
-                  </button>
-                  <button 
-                    className="btn btn-sm btn-danger w-100" 
-                    onClick={() => eliminarProducto(item.id)}
-                  >
-                    Eliminar
-                  </button>
+          {productosFiltrados.map((item) => {
+            const clave = `${item.tipo}-${item.id}`;
+            return (
+              <div key={clave} className="card shadow-sm" style={{ width: '18rem' }}>
+                <div className="card-body">
+                  <span className={`badge mb-2 ${item.tipo === 'Servicio' ? 'bg-success' : 'bg-primary'}`}>
+                    {item.tipo}
+                  </span>
+                  <h5 className="card-title fw-bold">{item.nombre}</h5>
+                  <h6 className="card-subtitle mb-2 text-muted">{item.codigo} · {item.categoria}</h6>
+                  <p className="card-text mb-1"><strong>Precio:</strong> {formatearPrecio(item.precio)}</p>
+                  {item.tipo === 'Medicamento' ? (
+                    <p className="card-text mb-3"><strong>Stock:</strong> {item.stock}</p>
+                  ) : (
+                    <p className="card-text mb-3"><strong>Duración:</strong> {item.duracion}</p>
+                  )}
+
+                  <div className="d-flex justify-content-between">
+                    <button
+                      className="btn btn-sm btn-primary w-100 me-2"
+                      onClick={() => modificarProducto(item)}
+                    >
+                      Modificar
+                    </button>
+                    <button
+                      className="btn btn-sm btn-danger w-100"
+                      onClick={() => eliminarProducto(item)}
+                      disabled={eliminando === clave}
+                    >
+                      {eliminando === clave ? 'Eliminando...' : 'Eliminar'}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
