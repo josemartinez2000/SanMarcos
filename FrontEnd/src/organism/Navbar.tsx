@@ -1,26 +1,16 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { obtenerSesion, cerrarSesionGuardada } from '../services/api';
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const [usuario, setUsuario] = useState<string | null>(null);
-  const [rol, setRol] = useState<string | null>(null);
-
-  // Cada vez que cambiamos de página, verificamos la sesión en localStorage
-  useEffect(() => {
-    const usuarioGuardado = localStorage.getItem('usuarioLogueado');
-    const rolGuardado = localStorage.getItem('rolUsuario');
-    setUsuario(usuarioGuardado);
-    setRol(rolGuardado);
-  }, [location]);
+  // useLocation hace que la barra se vuelva a dibujar en cada cambio de página,
+  // así la sesión guardada en localStorage (login contra clientes-service) siempre está al día
+  useLocation();
+  const { correo: usuario, rol } = obtenerSesion();
 
   const cerrarSesion = () => {
-    localStorage.removeItem('usuarioLogueado');
-    localStorage.removeItem('rolUsuario');
-    setUsuario(null);
-    setRol(null);
+    cerrarSesionGuardada();
     navigate('/login');
   };
 
@@ -41,7 +31,7 @@ export default function Navbar() {
         </button>
 
         <div className="collapse navbar-collapse" id="menu">
-          <ul className="navbar-nav ms-auto align-items-lg-center gap-2">
+          <ul className="navbar-nav ms-auto align-items-lg-center gap-2 flex-wrap justify-content-end">
             <li className="nav-item">
               <Link className="nav-link" to="/catalogo">Servicios</Link>
             </li>
@@ -53,7 +43,7 @@ export default function Navbar() {
             </li>
 
             {/*  Pestaña especial que SOLO aparece si es Administrador */}
-            {rol === 'admin' && (
+            {rol === 'ADMIN' && (
               <li className="nav-item">
                 <Link 
                   className="btn btn-warning fw-bold text-dark px-3" 
@@ -67,6 +57,11 @@ export default function Navbar() {
             {/*  Detectar sesión activa y mantenerla hasta cerrar manualmente */}
             {usuario ? (
               <>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/ficha">
+                    {rol === 'ADMIN' ? 'Fichas' : 'Mis Fichas'}
+                  </Link>
+                </li>
                 <li className="nav-item">
                   <span className="nav-link fw-bold" style={{ color: '#A8C6B0' }}>
                     Hola, {usuario}

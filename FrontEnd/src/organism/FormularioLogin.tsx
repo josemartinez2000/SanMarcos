@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import CampoFormulario from '../molecules/CampoFormulario';
 import Boton from '../atoms/Boton';
+import { API_CLIENTES, obtenerMensajeError, type Cliente } from '../services/api';
 
 export default function FormularioLogin() {
   const navigate = useNavigate();
@@ -9,9 +10,11 @@ export default function FormularioLogin() {
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [enviando, setEnviando] = useState(false);
 
-  const iniciarSesion = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const iniciarSesion = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if (enviando) return;
 
     // 1. Validar campos vacíos
     if (correo.trim() === '' || password.trim() === '') {
@@ -32,27 +35,45 @@ export default function FormularioLogin() {
     }
 
     setError('');
+    setEnviando(true);
 
-    // 4. Determinar si es Admin o Cliente según el correo
-    const correoLimpio = correo.trim().toLowerCase();
-    const esAdmin = correoLimpio.includes('@sanmarcos.cl') || correoLimpio.includes('admin');
+    try {
+      // 4. Validar las credenciales contra clientes-service (MySQL)
+      const respuesta = await fetch(`${API_CLIENTES}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ correo: correo.trim(), password })
+      });
 
-    // Se guarda la sesión en localStorage (se mantiene hasta cerrar sesión manualmente)
-    localStorage.setItem('usuarioLogueado', correo.trim());
-    localStorage.setItem('rolUsuario', esAdmin ? 'admin' : 'cliente');
+      if (!respuesta.ok) {
+        setError(await obtenerMensajeError(respuesta, 'Correo o contraseña incorrectos.'));
+        return;
+      }
 
-    // Se redirige según el rol
-    if (esAdmin) {
-      navigate('/admin');
-    } else {
-      navigate('/');
+      const usuario: Cliente = await respuesta.json();
+
+      // 5. Se guarda la sesión en localStorage (se mantiene hasta cerrar sesión manualmente)
+      localStorage.setItem('usuario', JSON.stringify(usuario));
+      localStorage.setItem('usuarioLogueado', usuario.correo);
+      localStorage.setItem('rolUsuario', usuario.rol);
+
+      // 6. Se redirige según el rol
+      if (usuario.rol === 'ADMIN') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+    } catch {
+      setError('No se pudo conectar con el servidor. Verifique que clientes-service esté activo.');
+    } finally {
+      setEnviando(false);
     }
   };
 
   return (
     <div className="container my-5 d-flex justify-content-center">
-      <div 
-        className="p-4 rounded shadow" 
+      <div
+        className="p-4 rounded shadow"
         style={{ backgroundColor: '#223526', color: '#F5F1E6', maxWidth: '450px', width: '100%' }}
       >
         <h2 className="text-center fw-bold mb-4">Iniciar Sesión</h2>
@@ -77,7 +98,7 @@ export default function FormularioLogin() {
           />
 
           <div className="d-grid gap-2 mt-4">
-            <Boton texto="Ingresar" onClick={iniciarSesion} />
+            <Boton texto={enviando ? 'Ingresando...' : 'Ingresar'} onClick={iniciarSesion} disabled={enviando} />
           </div>
         </form>
 
