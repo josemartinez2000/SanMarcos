@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 
 interface Props {
   id: string;
+  codigo?: string;
   nombre: string;
   categoria: string;
   precio: string;
@@ -12,6 +13,7 @@ interface Props {
 
 export default function CardMedicamento({
   id,
+  codigo,
   nombre,
   categoria,
   precio,
@@ -22,7 +24,7 @@ export default function CardMedicamento({
   const navigate = useNavigate();
 
   const irADetalle = () => {
-    const item = { id, nombre, categoria, precio, imagen, detalles };
+    const item = { id, codigo, nombre, categoria, precio, imagen, detalles };
     localStorage.setItem('productoSeleccionado', JSON.stringify(item));
     navigate(`${rutaBase}/${id}`);
   };
@@ -71,7 +73,7 @@ export default function CardMedicamento({
           </p>
 
           <div className="mb-3" style={{ fontSize: '0.82rem', color: '#d1dfd5' }}>
-            <div><strong>Código:</strong> {id}</div>
+            <div><strong>Código:</strong> {codigo ?? id}</div>
             <div><strong>Categoría:</strong> {categoria}</div>
             {detalles && (
               <div className="mt-1">{detalles}</div>

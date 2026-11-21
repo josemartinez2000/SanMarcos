@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import CardMedicamento from '../molecules/CardMedicamento';
 
-interface ItemCatalogo {
+export interface ItemCatalogo {
   id: string;
+  codigo?: string;
   nombre: string;
   categoria: string;
   precio: string;
@@ -29,7 +30,7 @@ export default function GrillaCatalogo({ items = [], rutaBase = '/detalle' }: Pr
   const itemsFiltrados = items.filter((item) => {
     const coincideTexto =
       item.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-      item.id.toLowerCase().includes(busqueda.toLowerCase());
+      (item.codigo ?? item.id).toLowerCase().includes(busqueda.toLowerCase());
     const coincideCategoria =
       categoriaSeleccionada === 'Todas' || item.categoria === categoriaSeleccionada;
     return coincideTexto && coincideCategoria;
@@ -112,6 +113,7 @@ export default function GrillaCatalogo({ items = [], rutaBase = '/detalle' }: Pr
                 <CardMedicamento
                   key={producto.id}
                   id={producto.id}
+                  codigo={producto.codigo}
                   nombre={producto.nombre}
                   categoria={producto.categoria}
                   precio={producto.precio}
