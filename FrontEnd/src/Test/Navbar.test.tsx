@@ -8,7 +8,7 @@ test("el navbar muestra el saludo cuando hay un usuario en localStorage", () => 
   // Aquí se guarda un usuario cliente en localStorage para simular la sesión iniciada
   localStorage.clear();
   localStorage.setItem("usuarioLogueado", "cliente@gmail.com");
-  localStorage.setItem("rolUsuario", "cliente");
+  localStorage.setItem("rolUsuario", "CLIENTE");
 
   // Aquí se renderiza el componente Navbar dentro de MemoryRouter
   render(
@@ -22,11 +22,11 @@ test("el navbar muestra el saludo cuando hay un usuario en localStorage", () => 
   expect(saludo.textContent).toBe("Hola, cliente@gmail.com");
 });
 
-test("el navbar muestra la pestaña Panel Admin cuando el rol es admin", () => {
-  // Aquí se guarda el rol admin en localStorage para activar el menú de administrador
+test("el navbar muestra la pestaña Panel Admin cuando el rol es ADMIN", () => {
+  // Aquí se guarda el rol ADMIN en localStorage para activar el menú de administrador
   localStorage.clear();
   localStorage.setItem("usuarioLogueado", "admin@sanmarcos.cl");
-  localStorage.setItem("rolUsuario", "admin");
+  localStorage.setItem("rolUsuario", "ADMIN");
 
   render(
     <MemoryRouter>

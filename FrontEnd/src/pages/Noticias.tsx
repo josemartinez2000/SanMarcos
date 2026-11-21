@@ -1,6 +1,88 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { API_NOTICIAS, obtenerMensajeError, obtenerSesion, type Noticia } from '../services/api';
 
 export default function Noticias() {
+  const esAdmin = obtenerSesion().rol === 'ADMIN';
+
+  const [noticias, setNoticias] = useState<Noticia[]>([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState('');
+
+  // Formulario de publicación (solo administrador)
+  const [titulo, setTitulo] = useState('');
+  const [resumen, setResumen] = useState('');
+  const [contenido, setContenido] = useState('');
+  const [imagen, setImagen] = useState('/img/noticia1.jpg');
+  const [enviando, setEnviando] = useState(false);
+  const [mensaje, setMensaje] = useState<{ tipo: 'success' | 'danger'; texto: string } | null>(null);
+
+  // Al incrementar este contador se vuelve a consultar la lista de noticias
+  const [recarga, setRecarga] = useState(0);
+
+  useEffect(() => {
+    const cargarNoticias = async () => {
+      try {
+        const respuesta = await fetch(API_NOTICIAS);
+        if (!respuesta.ok) throw new Error();
+        setNoticias(await respuesta.json());
+        setError('');
+      } catch {
+        setError('No se pudieron cargar las noticias. Verifique que noticias-service (puerto 8085) esté activo.');
+      } finally {
+        setCargando(false);
+      }
+    };
+    cargarNoticias();
+  }, [recarga]);
+
+  const publicarNoticia = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (enviando) return;
+    if (titulo.trim() === '' || resumen.trim() === '' || contenido.trim() === '') {
+      setMensaje({ tipo: 'danger', texto: 'Título, resumen y contenido son obligatorios.' });
+      return;
+    }
+
+    setEnviando(true);
+    try {
+      const respuesta = await fetch(API_NOTICIAS, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          titulo: titulo.trim(),
+          resumen: resumen.trim(),
+          contenido: contenido.trim(),
+          imagen: imagen.trim()
+        })
+      });
+      if (!respuesta.ok) {
+        setMensaje({ tipo: 'danger', texto: await obtenerMensajeError(respuesta, 'No se pudo publicar la noticia.') });
+        return;
+      }
+      setTitulo('');
+      setResumen('');
+      setContenido('');
+      setMensaje({ tipo: 'success', texto: 'Noticia publicada correctamente.' });
+      setRecarga((valor) => valor + 1);
+    } catch {
+      setMensaje({ tipo: 'danger', texto: 'No se pudo conectar con noticias-service.' });
+    } finally {
+      setEnviando(false);
+    }
+  };
+
+  const eliminarNoticia = async (noticia: Noticia) => {
+    if (!window.confirm(`¿Eliminar la noticia "${noticia.titulo}"?`)) return;
+    try {
+      const respuesta = await fetch(`${API_NOTICIAS}/${noticia.id}`, { method: 'DELETE' });
+      if (!respuesta.ok) throw new Error();
+      setRecarga((valor) => valor + 1);
+    } catch {
+      alert('No se pudo eliminar la noticia.');
+    }
+  };
+
   return (
     <>
       <header className="inicio text-center">
@@ -11,122 +93,68 @@ export default function Noticias() {
       </header>
 
       <section className="container my-5">
+        {esAdmin && (
+          <form className="ficha shadow-sm rounded mb-5" onSubmit={publicarNoticia}>
+            <h4 className="fw-bold mb-3">Publicar nueva noticia</h4>
+            {mensaje && <div className={`alert alert-${mensaje.tipo} py-2`}>{mensaje.texto}</div>}
+            <div className="row">
+              <div className="col-md-8 mb-2">
+                <label className="form-label">Título</label>
+                <input className="form-control" value={titulo} onChange={(e) => setTitulo(e.target.value)} />
+              </div>
+              <div className="col-md-4 mb-2">
+                <label className="form-label">Imagen (ruta)</label>
+                <input className="form-control" value={imagen} onChange={(e) => setImagen(e.target.value)} />
+              </div>
+            </div>
+            <div className="mb-2">
+              <label className="form-label">Resumen</label>
+              <textarea className="form-control" rows={2} value={resumen} onChange={(e) => setResumen(e.target.value)} />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Contenido (un dato por línea)</label>
+              <textarea className="form-control" rows={3} value={contenido} onChange={(e) => setContenido(e.target.value)} />
+            </div>
+            <button type="submit" className="btn btn-success" disabled={enviando}>
+              {enviando ? 'Publicando...' : 'Publicar noticia'}
+            </button>
+          </form>
+        )}
+
+        {cargando && (
+          <div className="text-center my-5">
+            <div className="spinner-border text-success" role="status"></div>
+            <p className="mt-2">Cargando noticias...</p>
+          </div>
+        )}
+
+        {error !== '' && <div className="alert alert-danger text-center">{error}</div>}
+
+        {!cargando && error === '' && noticias.length === 0 && (
+          <p className="text-center fw-bold">Aún no hay noticias publicadas.</p>
+        )}
+
         <div className="row">
-
-          <div className="col-md-4 mb-4">
-            <div className="card tarjeta-noticia h-100">
-              <img src="/img/noticia1.jpg" alt="Campaña de vacunación" className="img-noticia" />
-              <div className="card-body">
-                <h5 className="card-title">Campaña de vacunacion gratuita</h5>
-                <p className="card-text">
-                  Durante todo este mes ofrecemos vacunas antirrábicas sin costo para mascotas
-                  del sector de Valle Grande y alrededores. La campaña está dirigida a perros y
-                  gatos mayores de 3 meses, y no requiere inscripción previa.
-                </p>
-                <p className="card-text">
-                  <strong>Fecha:</strong> Todo septiembre 2026<br />
-                  <strong>Lugar:</strong> Veterinaria Huellitas, Valle Grande, Lampa<br />
-                  <strong>Requisitos:</strong> Traer a la mascota con correa o transportadora
-                </p>
+          {noticias.map((noticia) => (
+            <div key={noticia.id} className="col-md-4 mb-4">
+              <div className="card tarjeta-noticia h-100">
+                <img src={noticia.imagen} alt={noticia.titulo} className="img-noticia" />
+                <div className="card-body">
+                  <h5 className="card-title">{noticia.titulo}</h5>
+                  <p className="card-text">{noticia.resumen}</p>
+                  <p className="card-text" style={{ whiteSpace: 'pre-line' }}>{noticia.contenido}</p>
+                  <p className="card-text">
+                    <small className="text-muted">Publicado el {noticia.fechaPublicacion}</small>
+                  </p>
+                  {esAdmin && (
+                    <button className="btn btn-sm btn-outline-danger" onClick={() => eliminarNoticia(noticia)}>
+                      Eliminar
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-
-          <div className="col-md-4 mb-4">
-            <div className="card tarjeta-noticia h-100">
-              <img src="/img/noticia2.jpg" alt="Nuevo horario de atención" className="img-noticia" />
-              <div className="card-body">
-                <h5 className="card-title">Nuevo horario de atención</h5>
-                <p className="card-text">
-                  A partir de este mes, ampliamos nuestro horario de atención para casos de
-                  urgencia. Ahora contamos con atención los días domingo en la mañana, además
-                  de nuestro horario habitual de lunes a sábado.
-                </p>
-                <p className="card-text">
-                  <strong>Nuevo horario domingo:</strong> 9:00 a 13:00 hrs<br />
-                  <strong>Lunes a sábado:</strong> 9:00 a 20:00 hrs<br />
-                  <strong>Urgencias:</strong> Consultar disponibilidad por teléfono
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-md-4 mb-4">
-            <div className="card tarjeta-noticia h-100">
-              <img src="/img/noticia3.jpg" alt="Jornada de esterilización" className="img-noticia" />
-              <div className="card-body">
-                <h5 className="card-title">Jornada de esterilización</h5>
-                <p className="card-text">
-                  Súmate a nuestra jornada de esterilización a precio reducido para perros y
-                  gatos. Los cupos son limitados y se asignan por orden de inscripción,
-                  incluye control post operatorio sin costo adicional.
-                </p>
-                <p className="card-text">
-                  <strong>Cupos disponibles:</strong> 30<br />
-                  <strong>Incluye:</strong> Cirugia, medicamentos y control post operatorio<br />
-                  <strong>Inscripciones:</strong> Por telefono en nuestras instalaciones
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-md-4 mb-4">
-            <div className="card tarjeta-noticia h-100">
-              <img src="/img/noticia4.jpg" alt="Nueva sala de rayos X" className="img-noticia" />
-              <div className="card-body">
-                <h5 className="card-title">Nueva sala de rayos X</h5>
-                <p className="card-text">
-                  Incorporamos un nuevo equipo de rayos X digital, lo que nos permite obtener
-                  diagnósticos más rápidos y precisos sin que tu mascota tenga que trasladarse
-                  a otro centro para este examen
-                </p>
-                <p className="card-text">
-                  <strong>Disponible desde:</strong> Este mes<br />
-                  <strong>Atiende:</strong> Perros, gatos y mascotas exoticas<br />
-                  <strong>Reserva:</strong> Con hora previa
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-md-4 mb-4">
-            <div className="card tarjeta-noticia h-100">
-              <img src="/img/noticia5.jpg" alt="Charla de tenencia responsable" className="img-noticia" />
-              <div className="card-body">
-                <h5 className="card-title">Charla de tenencia responsable</h5>
-                <p className="card-text">
-                  Organizamos una charla gratuita sobre tenencia responsable de mascotas,
-                  dirigida a toda la comunidad. Hablaremos de cuidados básicos, alimentación,
-                  vacunación y esterilización.
-                </p>
-                <p className="card-text">
-                  <strong>Dirigido a:</strong> Toda la comunidad<br />
-                  <strong>Cupos:</strong> Libres, sin inscripción previa<br />
-                  <strong>Duración:</strong> Aproximadamente 1 hora
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-md-4 mb-4">
-            <div className="card tarjeta-noticia h-100">
-              <img src="/img/noticia6.jpg" alt="Descuento en peluquería" className="img-noticia" />
-              <div className="card-body">
-                <h5 className="card-title">Descuento en peluquería canina</h5>
-                <p className="card-text">
-                  Este mes tenemos descuento especial en todos nuestros servicios de
-                  peluquería canina y felina: baño, corte y desenredo, con productos
-                  hipoalergénicos aptos para pieles sensibles.
-                </p>
-                <p className="card-text">
-                  <strong>Descuento:</strong> 20% en todos los servicios<br />
-                  <strong>Válido hasta:</strong> Fin de mes<br />
-                  <strong>Reserva:</strong> Por teléfono o presencial
-                </p>
-              </div>
-            </div>
-          </div>
-
+          ))}
         </div>
 
         <div className="text-center mt-3">
@@ -137,11 +165,11 @@ export default function Noticias() {
       <section className="container my-5">
         <h2 className="text-center mb-4">Encuéntranos</h2>
         <div className="ratio ratio-16x9 mapa-caja">
-          <iframe 
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3333.5670133581725!2d-70.74890604358572!3d-33.33013351225689!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9662bf6189f5430b%3A0xd39ba7e291523650!2sPje.%20las%20Camelias%20Pte.%2C%20Valle%20Grande%2C%20Lampa%2C%20Regi%C3%B3n%20Metropolitana!5e0!3m2!1ses!2scl!4v1788552140940!5m2!1ses!2scl" 
-            style={{ border: 0 }} 
-            allowFullScreen 
-            loading="lazy" 
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3333.5670133581725!2d-70.74890604358572!3d-33.33013351225689!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9662bf6189f5430b%3A0xd39ba7e291523650!2sPje.%20las%20Camelias%20Pte.%2C%20Valle%20Grande%2C%20Lampa%2C%20Regi%C3%B3n%20Metropolitana!5e0!3m2!1ses!2scl!4v1788552140940!5m2!1ses!2scl"
+            style={{ border: 0 }}
+            allowFullScreen
+            loading="lazy"
             referrerPolicy="strict-origin-when-cross-origin"
             title="Ubicación Veterinaria San Marcos"
           >

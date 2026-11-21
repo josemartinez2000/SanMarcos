@@ -9,6 +9,10 @@ test("muestra una alerta cuando se intenta guardar un producto con los campos va
     .spyOn(window, "alert")
     .mockImplementation(() => {});
 
+  // Aquí se espía fetch para comprobar que no se envía nada al backend
+  const fetchEspia = vi.fn();
+  globalThis.fetch = fetchEspia as unknown as typeof fetch;
+
   render(
     <MemoryRouter>
       <AgregarProducto />
@@ -19,7 +23,8 @@ test("muestra una alerta cuando se intenta guardar un producto con los campos va
     screen.getByRole("button", { name: "Guardar Producto" })
   );
 
-  expect(alerta).toHaveBeenCalledWith("Por favor, complete al menos el ID, Nombre y Precio.");
+  expect(alerta).toHaveBeenCalledWith("Por favor, complete al menos el Código, Nombre y Precio.");
+  expect(fetchEspia).not.toHaveBeenCalled();
 
   alerta.mockRestore();
 });
