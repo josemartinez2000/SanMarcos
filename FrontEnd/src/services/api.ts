@@ -82,11 +82,6 @@ export function formatearPrecio(precio: number): string {
 
 // Lee el mensaje de error que envía el backend ({ mensaje: '...' }) o usa uno por defecto
 export async function obtenerMensajeError(respuesta: Response, mensajePorDefecto: string): Promise<string> {
-  // 401 con sesión guardada: el token expiró o ya no es válido
-  if (respuesta.status === 401 && localStorage.getItem('token')) {
-    cerrarSesionGuardada();
-    return 'Su sesión expiró. Inicie sesión nuevamente.';
-  }
   try {
     const datos = await respuesta.json();
     if (datos && typeof datos.mensaje === 'string') {
@@ -94,6 +89,11 @@ export async function obtenerMensajeError(respuesta: Response, mensajePorDefecto
     }
   } catch {
     // La respuesta no trae JSON
+  }
+  // 401 sin mensaje del backend: falta el token o expiró, se limpia la sesión guardada
+  if (respuesta.status === 401) {
+    cerrarSesionGuardada();
+    return 'Su sesión expiró. Inicie sesión nuevamente.';
   }
   if (respuesta.status === 403) {
     return 'No tiene permisos para realizar esta acción.';
