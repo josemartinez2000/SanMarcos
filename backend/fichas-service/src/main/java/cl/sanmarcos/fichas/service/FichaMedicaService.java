@@ -1,5 +1,6 @@
 package cl.sanmarcos.fichas.service;
 
+import cl.sanmarcos.fichas.exception.ReferenciaInvalidaException;
 import cl.sanmarcos.fichas.model.FichaMedica;
 import cl.sanmarcos.fichas.model.Mascota;
 import cl.sanmarcos.fichas.repository.FichaMedicaRepository;
@@ -47,9 +48,12 @@ public class FichaMedicaService {
         return Optional.of(fichaMedicaRepository.save(ficha));
     }
 
+    // 404 si la ficha no existe y 400 si la mascota indicada no existe
     public Optional<FichaMedica> actualizar(Long id, FichaMedica datos) {
         return fichaMedicaRepository.findById(id).map(ficha -> {
-            buscarMascota(datos).ifPresent(ficha::setMascota);
+            Mascota mascota = buscarMascota(datos)
+                    .orElseThrow(() -> new ReferenciaInvalidaException("La mascota indicada no existe"));
+            ficha.setMascota(mascota);
             ficha.setMotivoConsulta(datos.getMotivoConsulta());
             ficha.setDiagnostico(datos.getDiagnostico());
             ficha.setTratamiento(datos.getTratamiento());

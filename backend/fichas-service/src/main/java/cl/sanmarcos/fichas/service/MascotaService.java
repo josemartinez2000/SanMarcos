@@ -36,7 +36,7 @@ public class MascotaService {
 
     public Optional<Mascota> actualizar(Long id, Mascota datos) {
         return mascotaRepository.findById(id).map(mascota -> {
-            mascota.setCorreoCliente(datos.getCorreoCliente().trim().toLowerCase());
+            // El dueño no se reasigna: evita traspasar la mascota (y sus fichas) a otro cliente
             mascota.setNombre(datos.getNombre());
             mascota.setEspecie(datos.getEspecie());
             mascota.setRaza(datos.getRaza());

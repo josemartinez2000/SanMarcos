@@ -5,7 +5,7 @@ import cl.sanmarcos.fichas.service.FichaMedicaService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +21,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/fichas")
-@CrossOrigin(origins = "http://localhost:5173")
 public class FichaMedicaController {
 
     private final FichaMedicaService fichaMedicaService;
@@ -43,7 +42,9 @@ public class FichaMedicaController {
     }
 
     // Fichas de todas las mascotas de un cliente (consulta del dueño)
+    // Un cliente solo puede consultar su propio correo (el JWT lo lleva en sub)
     @GetMapping("/cliente/{correo}")
+    @PreAuthorize("hasRole('ADMIN') or #correo.equalsIgnoreCase(authentication.name)")
     public ResponseEntity<List<FichaMedica>> listarPorCliente(@PathVariable String correo) {
         return ResponseEntity.ok(fichaMedicaService.listarPorCliente(correo));
     }

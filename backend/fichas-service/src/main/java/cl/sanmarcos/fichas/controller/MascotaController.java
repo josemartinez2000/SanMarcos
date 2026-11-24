@@ -5,7 +5,7 @@ import cl.sanmarcos.fichas.service.MascotaService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +19,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/mascotas")
-@CrossOrigin(origins = "http://localhost:5173")
 public class MascotaController {
 
     private final MascotaService mascotaService;
@@ -40,7 +39,9 @@ public class MascotaController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // Un cliente solo puede consultar su propio correo (el JWT lo lleva en sub)
     @GetMapping("/cliente/{correo}")
+    @PreAuthorize("hasRole('ADMIN') or #correo.equalsIgnoreCase(authentication.name)")
     public ResponseEntity<List<Mascota>> listarPorCliente(@PathVariable String correo) {
         return ResponseEntity.ok(mascotaService.listarPorCliente(correo));
     }

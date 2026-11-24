@@ -4,6 +4,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -35,5 +36,17 @@ public class GlobalExceptionHandler {
     ResponseEntity<Map<String, String>> integridad() {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Map.of("mensaje", "El dato ya existe o no cumple las restricciones permitidas"));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    ResponseEntity<Map<String, String>> sinPermiso() {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(Map.of("mensaje", "No tiene permisos para realizar esta acción"));
+    }
+
+    // Referencias a registros inexistentes (por ejemplo, una mascota que no existe)
+    @ExceptionHandler(ReferenciaInvalidaException.class)
+    ResponseEntity<Map<String, String>> referenciaInvalida(ReferenciaInvalidaException ex) {
+        return ResponseEntity.badRequest().body(Map.of("mensaje", ex.getMessage()));
     }
 }
