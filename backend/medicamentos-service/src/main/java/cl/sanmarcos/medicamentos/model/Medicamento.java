@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -59,4 +60,8 @@ public class Medicamento {
 
     @Column(columnDefinition = "TEXT")
     private String detalles;
+
+    // Se incrementa en cada guardado; si el cliente envía una versión antigua se rechaza el cambio
+    @Version
+    private Long version;
 }

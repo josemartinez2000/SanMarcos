@@ -2,6 +2,7 @@ package cl.sanmarcos.medicamentos.service;
 
 import cl.sanmarcos.medicamentos.model.Medicamento;
 import cl.sanmarcos.medicamentos.repository.MedicamentoRepository;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,12 +34,17 @@ public class MedicamentoService {
 
     public Medicamento guardar(Medicamento medicamento) {
         medicamento.setId(null);
+        medicamento.setVersion(null);
         medicamento.setCodigo(medicamento.getCodigo().trim().toUpperCase());
         return medicamentoRepository.save(medicamento);
     }
 
     public Optional<Medicamento> actualizar(Long id, Medicamento datos) {
         return medicamentoRepository.findById(id).map(medicamento -> {
+            // Si el formulario se cargó con una versión anterior, otro administrador ya lo modificó
+            if (datos.getVersion() != null && !datos.getVersion().equals(medicamento.getVersion())) {
+                throw new ObjectOptimisticLockingFailureException(Medicamento.class, id);
+            }
             medicamento.setCodigo(datos.getCodigo().trim().toUpperCase());
             medicamento.setNombre(datos.getNombre());
             medicamento.setCategoria(datos.getCategoria());

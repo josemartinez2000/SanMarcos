@@ -1,6 +1,7 @@
 package cl.sanmarcos.medicamentos.exception;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -42,5 +43,11 @@ public class GlobalExceptionHandler {
     ResponseEntity<Map<String, String>> sinPermiso() {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(Map.of("mensaje", "No tiene permisos para realizar esta acción"));
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    ResponseEntity<Map<String, String>> versionDesactualizada() {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("mensaje", "Otro usuario modificó este medicamento. Recargue e intente nuevamente."));
     }
 }

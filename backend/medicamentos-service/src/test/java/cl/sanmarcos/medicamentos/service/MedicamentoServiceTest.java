@@ -27,7 +27,7 @@ class MedicamentoServiceTest {
 
     private Medicamento crearMedicamento() {
         return new Medicamento(4L, "ME004", "Nexgard", "Antiparasitarios", 9500, 60,
-                "/img/Nexgard.jpg", "Principio activo: Afoxolaner");
+                "/img/Nexgard.jpg", "Principio activo: Afoxolaner", 0L);
     }
 
     @Test
