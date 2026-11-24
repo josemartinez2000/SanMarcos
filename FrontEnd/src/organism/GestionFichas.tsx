@@ -4,6 +4,7 @@ import {
   API_CLIENTES,
   API_FICHAS,
   API_MASCOTAS,
+  encabezados,
   obtenerMensajeError,
   type Cliente,
   type FichaMedica,
@@ -55,8 +56,11 @@ export default function GestionFichas({ motivoInicial = '' }: Props) {
   useEffect(() => {
     const cargarClientes = async () => {
       try {
-        const respuesta = await fetch(API_CLIENTES);
-        if (!respuesta.ok) throw new Error();
+        const respuesta = await fetch(API_CLIENTES, { headers: encabezados() });
+        if (!respuesta.ok) {
+          setMensaje({ tipo: 'danger', texto: await obtenerMensajeError(respuesta, 'No se pudo cargar la lista de clientes.') });
+          return;
+        }
         const datos: Cliente[] = await respuesta.json();
         setClientes(datos.filter((cliente) => cliente.rol === 'CLIENTE'));
       } catch {
@@ -76,10 +80,14 @@ export default function GestionFichas({ motivoInicial = '' }: Props) {
     try {
       const correoUrl = encodeURIComponent(correo);
       const [respuestaMascotas, respuestaFichas] = await Promise.all([
-        fetch(`${API_MASCOTAS}/cliente/${correoUrl}`),
-        fetch(`${API_FICHAS}/cliente/${correoUrl}`)
+        fetch(`${API_MASCOTAS}/cliente/${correoUrl}`, { headers: encabezados() }),
+        fetch(`${API_FICHAS}/cliente/${correoUrl}`, { headers: encabezados() })
       ]);
-      if (!respuestaMascotas.ok || !respuestaFichas.ok) throw new Error();
+      const fallida = !respuestaMascotas.ok ? respuestaMascotas : !respuestaFichas.ok ? respuestaFichas : null;
+      if (fallida) {
+        setMensaje({ tipo: 'danger', texto: await obtenerMensajeError(fallida, 'No se pudieron cargar las fichas.') });
+        return;
+      }
       setMascotas(await respuestaMascotas.json());
       setFichas(await respuestaFichas.json());
     } catch {
@@ -122,7 +130,7 @@ export default function GestionFichas({ motivoInicial = '' }: Props) {
     try {
       const respuesta = await fetch(API_MASCOTAS, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: encabezados(true),
         body: JSON.stringify({
           correoCliente,
           nombre: nombreMascota.trim(),
@@ -173,7 +181,7 @@ export default function GestionFichas({ motivoInicial = '' }: Props) {
       const url = fichaEditando ? `${API_FICHAS}/${fichaEditando}` : API_FICHAS;
       const respuesta = await fetch(url, {
         method: fichaEditando ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: encabezados(true),
         body: JSON.stringify(datos)
       });
       if (!respuesta.ok) {
@@ -206,8 +214,11 @@ export default function GestionFichas({ motivoInicial = '' }: Props) {
   const eliminarFicha = async (ficha: FichaMedica) => {
     if (!window.confirm(`¿Eliminar la ficha "${ficha.motivoConsulta}" de ${ficha.mascota.nombre}?`)) return;
     try {
-      const respuesta = await fetch(`${API_FICHAS}/${ficha.id}`, { method: 'DELETE' });
-      if (!respuesta.ok) throw new Error();
+      const respuesta = await fetch(`${API_FICHAS}/${ficha.id}`, { method: 'DELETE', headers: encabezados() });
+      if (!respuesta.ok) {
+        setMensaje({ tipo: 'danger', texto: await obtenerMensajeError(respuesta, 'No se pudo eliminar el registro.') });
+        return;
+      }
       if (fichaEditando === ficha.id) limpiarFormularioFicha();
       setMensaje({ tipo: 'success', texto: 'Ficha médica eliminada.' });
       await cargarDatosCliente(correoCliente);
@@ -219,8 +230,11 @@ export default function GestionFichas({ motivoInicial = '' }: Props) {
   const eliminarMascota = async (mascota: Mascota) => {
     if (!window.confirm(`¿Eliminar a ${mascota.nombre}? También se eliminarán todas sus fichas médicas.`)) return;
     try {
-      const respuesta = await fetch(`${API_MASCOTAS}/${mascota.id}`, { method: 'DELETE' });
-      if (!respuesta.ok) throw new Error();
+      const respuesta = await fetch(`${API_MASCOTAS}/${mascota.id}`, { method: 'DELETE', headers: encabezados() });
+      if (!respuesta.ok) {
+        setMensaje({ tipo: 'danger', texto: await obtenerMensajeError(respuesta, 'No se pudo eliminar el registro.') });
+        return;
+      }
       if (mascotaId === String(mascota.id)) {
         setMascotaId('');
         limpiarFormularioFicha();

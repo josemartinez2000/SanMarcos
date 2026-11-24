@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import CampoFormulario from '../molecules/CampoFormulario';
 import Boton from '../atoms/Boton';
-import { API_CLIENTES, obtenerMensajeError, type Cliente } from '../services/api';
+import { API_CLIENTES, obtenerMensajeError, type LoginResponse } from '../services/api';
 
 export default function FormularioLogin() {
   const navigate = useNavigate();
@@ -50,9 +50,10 @@ export default function FormularioLogin() {
         return;
       }
 
-      const usuario: Cliente = await respuesta.json();
+      const { token, usuario }: LoginResponse = await respuesta.json();
 
-      // 5. Se guarda la sesión en localStorage (se mantiene hasta cerrar sesión manualmente)
+      // 5. Se guarda el token y la sesión en localStorage (hasta cerrar sesión o que el token expire)
+      localStorage.setItem('token', token);
       localStorage.setItem('usuario', JSON.stringify(usuario));
       localStorage.setItem('usuarioLogueado', usuario.correo);
       localStorage.setItem('rolUsuario', usuario.rol);

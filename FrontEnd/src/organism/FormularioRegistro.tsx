@@ -31,8 +31,8 @@ export default function FormularioRegistro() {
       return;
     }
 
-    if (clave.length < 4) {
-      setError('La contraseña debe tener al menos 4 caracteres.');
+    if (clave.length < 8 || clave.length > 72) {
+      setError('La contraseña debe tener entre 8 y 72 caracteres.');
       return;
     }
 

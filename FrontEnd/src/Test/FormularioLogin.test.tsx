@@ -31,13 +31,16 @@ test("muestra un mensaje de error cuando se presiona Ingresar con los campos vac
   expect(error.textContent).toBe("Todos los campos son obligatorios.");
 });
 
-test("guarda el usuario y su rol en localStorage cuando el login es correcto", async () => {
+test("guarda el token, el usuario y su rol en localStorage cuando el login es correcto", async () => {
   localStorage.clear();
 
   // Aquí se simula la respuesta de clientes-service para un administrador
   const fetchSimulado = simularFetch({
     "http://localhost:8081/api/clientes/login": {
-      datos: { id: 1, nombreCompleto: "Administrador San Marcos", correo: "admin@sanmarcos.cl", telefono: "", rol: "ADMIN", fechaRegistro: "2026-03-01T09:00:00" }
+      datos: {
+        token: "token-de-prueba",
+        usuario: { id: 1, nombreCompleto: "Administrador San Marcos", correo: "admin@sanmarcos.cl", telefono: "", rol: "ADMIN", fechaRegistro: "2026-03-01T09:00:00" }
+      }
     }
   });
 
@@ -56,6 +59,7 @@ test("guarda el usuario y su rol en localStorage cuando el login es correcto", a
 
   await waitFor(() => expect(localStorage.getItem("rolUsuario")).toBe("ADMIN"));
   expect(localStorage.getItem("usuarioLogueado")).toBe("admin@sanmarcos.cl");
+  expect(localStorage.getItem("token")).toBe("token-de-prueba");
   expect(fetchSimulado).toHaveBeenCalledWith(
     "http://localhost:8081/api/clientes/login",
     expect.objectContaining({ method: "POST" })

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { API_NOTICIAS, obtenerMensajeError, obtenerSesion, type Noticia } from '../services/api';
+import { API_NOTICIAS, encabezados, obtenerMensajeError, obtenerSesion, type Noticia } from '../services/api';
 
 export default function Noticias() {
   const esAdmin = obtenerSesion().rol === 'ADMIN';
@@ -48,7 +48,7 @@ export default function Noticias() {
     try {
       const respuesta = await fetch(API_NOTICIAS, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: encabezados(true),
         body: JSON.stringify({
           titulo: titulo.trim(),
           resumen: resumen.trim(),
@@ -75,8 +75,11 @@ export default function Noticias() {
   const eliminarNoticia = async (noticia: Noticia) => {
     if (!window.confirm(`¿Eliminar la noticia "${noticia.titulo}"?`)) return;
     try {
-      const respuesta = await fetch(`${API_NOTICIAS}/${noticia.id}`, { method: 'DELETE' });
-      if (!respuesta.ok) throw new Error();
+      const respuesta = await fetch(`${API_NOTICIAS}/${noticia.id}`, { method: 'DELETE', headers: encabezados() });
+      if (!respuesta.ok) {
+        alert(await obtenerMensajeError(respuesta, 'No se pudo eliminar. Intente nuevamente.'));
+        return;
+      }
       setRecarga((valor) => valor + 1);
     } catch {
       alert('No se pudo eliminar la noticia.');

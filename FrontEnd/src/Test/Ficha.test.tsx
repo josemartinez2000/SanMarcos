@@ -10,6 +10,7 @@ test("el cliente ve en modo lectura sus mascotas y fichas médicas", async () =>
   localStorage.clear();
   localStorage.setItem("usuarioLogueado", "cliente@gmail.com");
   localStorage.setItem("rolUsuario", "CLIENTE");
+  localStorage.setItem("token", "token-cliente");
 
   const firulais = { id: 1, correoCliente: "cliente@gmail.com", nombre: "Firulais", especie: "Perro", raza: "Labrador retriever", edad: 5 };
 
@@ -31,8 +32,11 @@ test("el cliente ve en modo lectura sus mascotas y fichas médicas", async () =>
   expect(await screen.findByText("Firulais")).toBeTruthy();
   expect(screen.getByText("Control anual y vacunación")).toBeTruthy();
 
-  // Se consulta el endpoint de fichas por correo del dueño
-  expect(fetchSimulado).toHaveBeenCalledWith("http://localhost:8084/api/fichas/cliente/cliente%40gmail.com");
+  // Se consulta el endpoint de fichas por correo del dueño enviando el token
+  expect(fetchSimulado).toHaveBeenCalledWith(
+    "http://localhost:8084/api/fichas/cliente/cliente%40gmail.com",
+    { headers: { Authorization: "Bearer token-cliente" } }
+  );
 
   // En modo cliente no aparecen botones de edición
   expect(screen.queryByText("Editar ficha")).toBeNull();

@@ -25,6 +25,14 @@ export interface Medicamento {
   stock: number;
   imagen: string;
   detalles: string;
+  // Versión para el control de concurrencia: se devuelve tal cual al editar
+  version: number;
+}
+
+// Respuesta del login: token JWT y datos públicos del usuario
+export interface LoginResponse {
+  token: string;
+  usuario: Cliente;
 }
 
 export interface Servicio {
@@ -74,6 +82,11 @@ export function formatearPrecio(precio: number): string {
 
 // Lee el mensaje de error que envía el backend ({ mensaje: '...' }) o usa uno por defecto
 export async function obtenerMensajeError(respuesta: Response, mensajePorDefecto: string): Promise<string> {
+  // 401 con sesión guardada: el token expiró o ya no es válido
+  if (respuesta.status === 401 && localStorage.getItem('token')) {
+    cerrarSesionGuardada();
+    return 'Su sesión expiró. Inicie sesión nuevamente.';
+  }
   try {
     const datos = await respuesta.json();
     if (datos && typeof datos.mensaje === 'string') {
@@ -82,7 +95,24 @@ export async function obtenerMensajeError(respuesta: Response, mensajePorDefecto
   } catch {
     // La respuesta no trae JSON
   }
+  if (respuesta.status === 403) {
+    return 'No tiene permisos para realizar esta acción.';
+  }
   return mensajePorDefecto;
+}
+
+// Encabezados para endpoints protegidos: agrega "Authorization: Bearer <token>" si hay sesión.
+// No se usa en login, registro ni en las consultas públicas del catálogo.
+export function encabezados(conJson = false): Record<string, string> {
+  const cabeceras: Record<string, string> = {};
+  if (conJson) {
+    cabeceras['Content-Type'] = 'application/json';
+  }
+  const token = localStorage.getItem('token');
+  if (token) {
+    cabeceras['Authorization'] = `Bearer ${token}`;
+  }
+  return cabeceras;
 }
 
 // Datos de la sesión guardados en localStorage al iniciar sesión
@@ -94,6 +124,7 @@ export function obtenerSesion() {
 }
 
 export function cerrarSesionGuardada() {
+  localStorage.removeItem('token');
   localStorage.removeItem('usuario');
   localStorage.removeItem('usuarioLogueado');
   localStorage.removeItem('rolUsuario');

@@ -5,6 +5,8 @@ import HistorialMascotas from '../organism/HistorialMascotas';
 import {
   API_FICHAS,
   API_MASCOTAS,
+  encabezados,
+  obtenerMensajeError,
   obtenerSesion,
   type FichaMedica,
   type Mascota
@@ -33,10 +35,14 @@ function FichasCliente({ correo }: { correo: string }) {
       try {
         const correoUrl = encodeURIComponent(correo);
         const [respuestaFichas, respuestaMascotas] = await Promise.all([
-          fetch(`${API_FICHAS}/cliente/${correoUrl}`),
-          fetch(`${API_MASCOTAS}/cliente/${correoUrl}`)
+          fetch(`${API_FICHAS}/cliente/${correoUrl}`, { headers: encabezados() }),
+          fetch(`${API_MASCOTAS}/cliente/${correoUrl}`, { headers: encabezados() })
         ]);
-        if (!respuestaFichas.ok || !respuestaMascotas.ok) throw new Error();
+        const fallida = !respuestaFichas.ok ? respuestaFichas : !respuestaMascotas.ok ? respuestaMascotas : null;
+        if (fallida) {
+          setError(await obtenerMensajeError(fallida, 'No se pudieron cargar sus fichas médicas.'));
+          return;
+        }
         setFichas(await respuestaFichas.json());
         setMascotas(await respuestaMascotas.json());
       } catch {

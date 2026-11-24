@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { API_CLIENTES, type Cliente } from '../services/api';
+import { API_CLIENTES, encabezados, obtenerMensajeError, type Cliente } from '../services/api';
 
 export default function PrincipalAdmin() {
   const [usuarios, setUsuarios] = useState<Cliente[]>([]);
@@ -10,8 +10,11 @@ export default function PrincipalAdmin() {
   useEffect(() => {
     const cargarUsuarios = async () => {
       try {
-        const respuesta = await fetch(API_CLIENTES);
-        if (!respuesta.ok) throw new Error();
+        const respuesta = await fetch(API_CLIENTES, { headers: encabezados() });
+        if (!respuesta.ok) {
+          setError(await obtenerMensajeError(respuesta, 'No se pudo cargar la lista de usuarios.'));
+          return;
+        }
         setUsuarios(await respuesta.json());
       } catch {
         setError('No se pudo cargar la lista de usuarios (clientes-service, puerto 8081).');

@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   API_MEDICAMENTOS,
   API_SERVICIOS,
+  encabezados,
+  obtenerMensajeError,
   formatearPrecio,
   type Medicamento,
   type Servicio
@@ -85,8 +87,11 @@ export default function Modificaciones() {
     setEliminando(clave);
     try {
       const url = item.tipo === 'Servicio' ? API_SERVICIOS : API_MEDICAMENTOS;
-      const respuesta = await fetch(`${url}/${item.id}`, { method: 'DELETE' });
-      if (!respuesta.ok) throw new Error();
+      const respuesta = await fetch(`${url}/${item.id}`, { method: 'DELETE', headers: encabezados() });
+      if (!respuesta.ok) {
+        alert(await obtenerMensajeError(respuesta, 'No se pudo eliminar. Intente nuevamente.'));
+        return;
+      }
       setRecarga((valor) => valor + 1);
     } catch {
       alert('No se pudo eliminar el producto. Intente nuevamente.');

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CampoFormulario from '../molecules/CampoFormulario';
 import Boton from '../atoms/Boton';
-import { API_MEDICAMENTOS, API_SERVICIOS, obtenerMensajeError } from '../services/api';
+import { API_MEDICAMENTOS, API_SERVICIOS, encabezados, obtenerMensajeError } from '../services/api';
 
 export default function AgregarProducto() {
   const navigate = useNavigate();
@@ -65,7 +65,7 @@ export default function AgregarProducto() {
     try {
       const respuesta = await fetch(tipo === 'Servicio' ? API_SERVICIOS : API_MEDICAMENTOS, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: encabezados(true),
         body: JSON.stringify(nuevoProducto)
       });
 

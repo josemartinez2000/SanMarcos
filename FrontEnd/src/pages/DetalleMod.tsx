@@ -4,6 +4,7 @@ import {
   API_MEDICAMENTOS,
   API_SERVICIOS,
   formatearPrecio,
+  encabezados,
   obtenerMensajeError,
   type Medicamento,
   type Servicio
@@ -32,6 +33,8 @@ export default function DetalleMod() {
   const [duracion, setDuracion] = useState('');
   const [imagen, setImagen] = useState('');
   const [detalles, setDetalles] = useState('');
+  // Versión del medicamento al cargarlo: si otro administrador lo guarda antes, el backend responde 409
+  const [version, setVersion] = useState<number | null>(null);
 
   // Carga el registro actual desde MySQL
   useEffect(() => {
@@ -51,6 +54,7 @@ export default function DetalleMod() {
         setDuracion(producto.duracion ?? '');
         setImagen(producto.imagen ?? '');
         setDetalles(producto.detalles ?? '');
+        setVersion(producto.version ?? null);
       } catch {
         setNoEncontrado(true);
       } finally {
@@ -91,7 +95,7 @@ export default function DetalleMod() {
       detalles: detalles.trim()
     };
     const datos = esMedicamento
-      ? { ...datosBase, stock: Number(stock) }
+      ? { ...datosBase, stock: Number(stock), version }
       : { ...datosBase, duracion: duracion.trim() };
 
     setEnviando(true);
@@ -99,13 +103,15 @@ export default function DetalleMod() {
     try {
       const respuesta = await fetch(`${urlBase}/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: encabezados(true),
         body: JSON.stringify(datos)
       });
       if (!respuesta.ok) {
         setMensaje({ tipo: 'danger', texto: await obtenerMensajeError(respuesta, 'No se pudieron guardar los cambios.') });
         return;
       }
+      const guardado: Servicio & Medicamento = await respuesta.json();
+      setVersion(guardado.version ?? null);
       setMensaje({ tipo: 'success', texto: 'Cambios guardados correctamente en la base de datos.' });
     } catch {
       setMensaje({ tipo: 'danger', texto: 'No se pudo conectar con el servidor.' });
