@@ -7,11 +7,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -57,5 +59,16 @@ class MedicamentoServiceTest {
         when(medicamentoRepository.existsById(99L)).thenReturn(false);
 
         assertFalse(medicamentoService.eliminar(99L));
+    }
+
+    @Test
+    void actualizarConVersionAntiguaSeRechaza() {
+        Medicamento enBaseDeDatos = crearMedicamento();
+        enBaseDeDatos.setVersion(3L);
+        Medicamento datos = crearMedicamento();
+        datos.setVersion(2L);
+        when(medicamentoRepository.findById(4L)).thenReturn(Optional.of(enBaseDeDatos));
+
+        assertThrows(ObjectOptimisticLockingFailureException.class, () -> medicamentoService.actualizar(4L, datos));
     }
 }

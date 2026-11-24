@@ -1,5 +1,6 @@
 package cl.sanmarcos.fichas.service;
 
+import cl.sanmarcos.fichas.exception.ReferenciaInvalidaException;
 import cl.sanmarcos.fichas.model.FichaMedica;
 import cl.sanmarcos.fichas.model.Mascota;
 import cl.sanmarcos.fichas.repository.FichaMedicaRepository;
@@ -14,8 +15,11 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -70,5 +74,16 @@ class FichaMedicaServiceTest {
 
         assertEquals("ALTA", actualizada.getEstado());
         assertEquals("Recuperado", actualizada.getDiagnostico());
+    }
+
+    @Test
+    void actualizarConMascotaInexistenteLanzaErrorYNoGuarda() {
+        FichaMedica existente = crearFicha(1L);
+        existente.setId(10L);
+        when(fichaMedicaRepository.findById(10L)).thenReturn(Optional.of(existente));
+        when(mascotaRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ReferenciaInvalidaException.class, () -> fichaMedicaService.actualizar(10L, crearFicha(99L)));
+        verify(fichaMedicaRepository, never()).save(any());
     }
 }
