@@ -39,6 +39,7 @@ public class Noticia {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String contenido;
 
+    @Size(max = 255, message = "La ruta de la imagen no puede superar los 255 caracteres")
     @Column(length = 255)
     private String imagen;
 

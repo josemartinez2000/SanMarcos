@@ -28,14 +28,17 @@ public class Cliente {
     private Long id;
 
     @NotBlank(message = "El nombre completo es obligatorio")
+    @Size(max = 100, message = "El nombre no puede superar los 100 caracteres")
     @Column(name = "nombre_completo", nullable = false, length = 100)
     private String nombreCompleto;
 
     @NotBlank(message = "El correo es obligatorio")
     @Email(message = "El correo no tiene un formato válido")
+    @Size(max = 100, message = "El correo no puede superar los 100 caracteres")
     @Column(nullable = false, unique = true, length = 100)
     private String correo;
 
+    @Size(max = 20, message = "El teléfono no puede superar los 20 caracteres")
     @Column(length = 20)
     private String telefono;
 

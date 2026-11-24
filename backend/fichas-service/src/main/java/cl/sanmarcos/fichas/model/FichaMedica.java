@@ -11,6 +11,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -35,6 +36,7 @@ public class FichaMedica {
     private Mascota mascota;
 
     @NotBlank(message = "El motivo de consulta es obligatorio")
+    @Size(max = 150, message = "El motivo no puede superar los 150 caracteres")
     @Column(name = "motivo_consulta", nullable = false, length = 150)
     private String motivoConsulta;
 
@@ -45,6 +47,7 @@ public class FichaMedica {
     private String tratamiento;
 
     @NotBlank(message = "El veterinario es obligatorio")
+    @Size(max = 100, message = "El veterinario no puede superar los 100 caracteres")
     @Column(nullable = false, length = 100)
     private String veterinario;
 
