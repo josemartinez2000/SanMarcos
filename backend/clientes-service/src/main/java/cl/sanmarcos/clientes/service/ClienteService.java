@@ -1,7 +1,12 @@
 package cl.sanmarcos.clientes.service;
 
+import cl.sanmarcos.clientes.dto.ActualizarRequest;
+import cl.sanmarcos.clientes.dto.RegistroRequest;
+import cl.sanmarcos.clientes.exception.CorreoDuplicadoException;
 import cl.sanmarcos.clientes.model.Cliente;
 import cl.sanmarcos.clientes.repository.ClienteRepository;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -12,9 +17,11 @@ import java.util.Optional;
 public class ClienteService {
 
     private final ClienteRepository clienteRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public ClienteService(ClienteRepository clienteRepository) {
+    public ClienteService(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder) {
         this.clienteRepository = clienteRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<Cliente> listar() {
@@ -29,13 +36,25 @@ public class ClienteService {
         return clienteRepository.existsByCorreo(normalizarCorreo(correo));
     }
 
-    // Todo registro público se crea con rol CLIENTE
-    public Cliente registrar(Cliente cliente) {
-        cliente.setId(null);
-        cliente.setCorreo(normalizarCorreo(cliente.getCorreo()));
+    // Todo registro público se crea con rol CLIENTE y la contraseña se guarda con BCrypt
+    public Cliente registrar(RegistroRequest datos) {
+        String correo = normalizarCorreo(datos.correo());
+        if (clienteRepository.existsByCorreo(correo)) {
+            throw new CorreoDuplicadoException();
+        }
+        Cliente cliente = new Cliente();
+        cliente.setNombreCompleto(datos.nombreCompleto().trim());
+        cliente.setCorreo(correo);
+        cliente.setTelefono(datos.telefono());
+        cliente.setPassword(passwordEncoder.encode(datos.password()));
         cliente.setRol("CLIENTE");
         cliente.setFechaRegistro(LocalDateTime.now());
-        return clienteRepository.save(cliente);
+        try {
+            return clienteRepository.save(cliente);
+        } catch (DataIntegrityViolationException e) {
+            // Dos registros simultáneos con el mismo correo
+            throw new CorreoDuplicadoException();
+        }
     }
 
     public Optional<Cliente> login(String correo, String password) {
@@ -43,26 +62,23 @@ public class ClienteService {
             return Optional.empty();
         }
         return clienteRepository.findByCorreo(normalizarCorreo(correo))
-                .filter(cliente -> cliente.getPassword().equals(password));
+                .filter(cliente -> passwordEncoder.matches(password, cliente.getPassword()));
     }
 
-    public Optional<Cliente> actualizar(Long id, Cliente datos) {
+    public Optional<Cliente> actualizar(Long id, ActualizarRequest datos, boolean quienEditaEsAdmin) {
         return clienteRepository.findById(id).map(cliente -> {
-            if (datos.getNombreCompleto() != null && !datos.getNombreCompleto().isBlank()) {
-                cliente.setNombreCompleto(datos.getNombreCompleto());
+            if (datos.nombreCompleto() != null && !datos.nombreCompleto().isBlank()) {
+                cliente.setNombreCompleto(datos.nombreCompleto().trim());
             }
-            if (datos.getCorreo() != null && !datos.getCorreo().isBlank()) {
-                cliente.setCorreo(normalizarCorreo(datos.getCorreo()));
+            if (datos.telefono() != null) {
+                cliente.setTelefono(datos.telefono());
             }
-            if (datos.getTelefono() != null) {
-                cliente.setTelefono(datos.getTelefono());
+            if (datos.password() != null && !datos.password().isBlank()) {
+                cliente.setPassword(passwordEncoder.encode(datos.password()));
             }
-            // La contraseña solo se cambia si viene informada
-            if (datos.getPassword() != null && !datos.getPassword().isBlank()) {
-                cliente.setPassword(datos.getPassword());
-            }
-            if ("ADMIN".equals(datos.getRol()) || "CLIENTE".equals(datos.getRol())) {
-                cliente.setRol(datos.getRol());
+            // Solo un administrador puede cambiar roles
+            if (quienEditaEsAdmin && ("ADMIN".equals(datos.rol()) || "CLIENTE".equals(datos.rol()))) {
+                cliente.setRol(datos.rol());
             }
             return clienteRepository.save(cliente);
         });

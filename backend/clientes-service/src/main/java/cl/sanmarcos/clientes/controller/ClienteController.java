@@ -1,12 +1,20 @@
 package cl.sanmarcos.clientes.controller;
 
+import cl.sanmarcos.clientes.dto.ActualizarRequest;
+import cl.sanmarcos.clientes.dto.ClienteResponse;
+import cl.sanmarcos.clientes.dto.LoginRequest;
+import cl.sanmarcos.clientes.dto.LoginResponse;
+import cl.sanmarcos.clientes.dto.RegistroRequest;
+import cl.sanmarcos.clientes.exception.CredencialesInvalidasException;
 import cl.sanmarcos.clientes.model.Cliente;
-import cl.sanmarcos.clientes.model.LoginRequest;
+import cl.sanmarcos.clientes.security.JwtService;
 import cl.sanmarcos.clientes.service.ClienteService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,60 +25,64 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/clientes")
-@CrossOrigin(origins = "http://localhost:5173")
 public class ClienteController {
 
-    private final ClienteService clienteService;
+    // Un ADMIN puede todo; un cliente solo sobre su propio registro (claim uid del token)
+    private static final String ADMIN_O_PROPIETARIO =
+            "hasRole('ADMIN') or #jwt.claims['uid'].toString() == #id.toString()";
 
-    public ClienteController(ClienteService clienteService) {
+    private final ClienteService clienteService;
+    private final JwtService jwtService;
+
+    public ClienteController(ClienteService clienteService, JwtService jwtService) {
         this.clienteService = clienteService;
+        this.jwtService = jwtService;
     }
 
     @GetMapping
-    public ResponseEntity<List<Cliente>> listar() {
-        return ResponseEntity.ok(clienteService.listar());
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<ClienteResponse> listar() {
+        return clienteService.listar().stream().map(ClienteResponse::from).toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Cliente> buscarPorId(@PathVariable Long id) {
+    @PreAuthorize(ADMIN_O_PROPIETARIO)
+    public ResponseEntity<ClienteResponse> buscarPorId(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
         return clienteService.buscarPorId(id)
-                .map(ResponseEntity::ok)
+                .map(c -> ResponseEntity.ok(ClienteResponse.from(c)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/registro")
-    public ResponseEntity<?> registrar(@Valid @RequestBody Cliente cliente) {
-        if (clienteService.existeCorreo(cliente.getCorreo())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("mensaje", "El correo ya se encuentra registrado"));
-        }
-        Cliente nuevo = clienteService.registrar(cliente);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
+    public ResponseEntity<ClienteResponse> registrar(@Valid @RequestBody RegistroRequest datos) {
+        Cliente nuevo = clienteService.registrar(datos);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ClienteResponse.from(nuevo));
     }
 
+    // Devuelve { token, usuario }; el token se envía luego en el encabezado Authorization
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest login) {
-        Optional<Cliente> cliente = clienteService.login(login.getCorreo(), login.getPassword());
-        if (cliente.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("mensaje", "Correo o contraseña incorrectos"));
-        }
-        return ResponseEntity.ok(cliente.get());
+    public LoginResponse login(@Valid @RequestBody LoginRequest login) {
+        Cliente cliente = clienteService.login(login.correo(), login.password())
+                .orElseThrow(CredencialesInvalidasException::new);
+        return new LoginResponse(jwtService.generar(cliente), ClienteResponse.from(cliente));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Cliente> actualizar(@PathVariable Long id, @RequestBody Cliente cliente) {
-        return clienteService.actualizar(id, cliente)
-                .map(ResponseEntity::ok)
+    @PreAuthorize(ADMIN_O_PROPIETARIO)
+    public ResponseEntity<ClienteResponse> actualizar(@PathVariable Long id,
+                                                      @Valid @RequestBody ActualizarRequest datos,
+                                                      @AuthenticationPrincipal Jwt jwt) {
+        boolean esAdmin = "ADMIN".equals(jwt.getClaimAsString("rol"));
+        return clienteService.actualizar(id, datos, esAdmin)
+                .map(c -> ResponseEntity.ok(ClienteResponse.from(c)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         if (clienteService.eliminar(id)) {
             return ResponseEntity.noContent().build();

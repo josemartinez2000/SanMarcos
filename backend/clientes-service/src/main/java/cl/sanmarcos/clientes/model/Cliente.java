@@ -42,9 +42,9 @@ public class Cliente {
     @Column(length = 20)
     private String telefono;
 
-    // La contraseña se recibe en las peticiones, pero nunca se devuelve en el JSON
+    // Hash BCrypt de la contraseña; nunca se devuelve en el JSON
     @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 4, message = "La contraseña debe tener al menos 4 caracteres")
+    @Size(max = 100)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(nullable = false, length = 100)
     private String password;
