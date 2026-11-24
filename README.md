@@ -21,15 +21,31 @@ Aplicación web de la Clínica Veterinaria San Marcos: catálogo de servicios cl
 
 La especificación OpenAPI en JSON de cada microservicio está en `http://localhost:<puerto>/v3/api-docs`.
 
-Cada microservicio de negocio sigue la arquitectura de 4 capas `model` → `repository` → `service` → `controller`, se registra en Eureka (`http://localhost:8761/eureka/`) y permite peticiones CORS desde `http://localhost:5173`.
+Cada microservicio de negocio sigue la arquitectura de 4 capas `model` → `repository` → `service` → `controller`, se registra en Eureka (`http://localhost:8761/eureka/`) y permite peticiones CORS desde los orígenes de `CORS_ORIGINS` (por defecto `http://localhost:5173`).
+
+### Seguridad
+
+- `clientes-service` valida la contraseña con **BCrypt** y el login devuelve `{ token, usuario }`: un **JWT** (HS256, 60 minutos) con el correo en `sub` y el rol en el claim `rol`.
+- El frontend envía el token en el encabezado `Authorization: Bearer <token>`; los otros 4 servicios validan el mismo token con el secreto compartido `JWT_SECRET`.
+- Permisos: el catálogo, los medicamentos y las noticias son de lectura pública y solo un `ADMIN` puede crear, editar o eliminar. Un `CLIENTE` solo consulta sus propias mascotas y fichas; el resto de `fichas-service` y la lista de usuarios son solo para `ADMIN`.
+- Los errores responden siempre con `{ "mensaje": "..." }` (validaciones 400, sin sesión 401, sin permiso 403, duplicados o versión desactualizada 409).
+
+| Variable | Uso | Valor por defecto |
+|---|---|---|
+| `JWT_SECRET` | Firma de los tokens (mínimo 32 caracteres) | **Obligatoria** (`iniciar-todo.bat` genera una temporal si no existe) |
+| `DB_USER` / `DB_PASSWORD` | Credenciales de MySQL | `root` / vacía |
+| `CORS_ORIGINS` | Orígenes permitidos del frontend | `http://localhost:5173` |
+| `SWAGGER_ENABLED` | Habilita Swagger UI y `/v3/api-docs` | `true` |
+| `EUREKA_SELF_PRESERVATION` | Autopreservación de Eureka | `false` |
 
 ### Base de datos y migraciones
 
-- Conexión: `jdbc:mysql://localhost:3306/<nombre_bd>`, usuario `root`, contraseña vacía.
+- Conexión: `jdbc:mysql://localhost:3306/<nombre_bd>`, credenciales `DB_USER` / `DB_PASSWORD` (por defecto `root` sin contraseña).
 - Las bases de datos se crean automáticamente (`createDatabaseIfNotExist=true`).
 - Flyway ejecuta los scripts de `src/main/resources/db/migracion/` de cada servicio:
   - `V1__crear_tablas.sql`: tablas, claves primarias `AUTO_INCREMENT`, `UNIQUE` y llaves foráneas.
   - `V2__datos_iniciales.sql`: datos iniciales (usuarios, 28 medicamentos/vacunas `ME001`–`ME028`, 25 servicios `SV001`–`SV025`, mascotas, fichas médicas y noticias).
+  - `V3` en `clientes-service` reemplaza las contraseñas de prueba por su hash BCrypt; `V3` en `medicamentos-service` agrega la columna `version` (control de concurrencia del stock).
 - Hibernate trabaja con `spring.jpa.hibernate.ddl-auto=validate`: solo valida que las entidades coincidan con las tablas creadas por Flyway.
 - En `fichas-service` existe una relación real **1 a N**: `fichas_medicas.mascota_id` → `mascotas.id` con `ON DELETE CASCADE`.
 
@@ -49,11 +65,17 @@ Cada microservicio de negocio sigue la arquitectura de 4 capas `model` → `repo
 1. Inicie **MySQL** desde el panel de control de XAMPP.
 2. Haga doble clic en **`iniciar-todo.bat`** (raíz del proyecto).
 
-El script abre una ventana por componente: primero `eureka-server`, espera a que responda y luego levanta los 5 microservicios y el frontend (`npm install` la primera vez y `npm run dev`). La primera ejecución tarda más porque Maven descarga las dependencias.
+El script abre una ventana por componente: primero `eureka-server`, espera hasta 2 minutos a que responda y luego levanta los 5 microservicios y el frontend (`npm install` la primera vez y `npm run dev`). Si `JWT_SECRET` no está definida, genera una clave aleatoria para esa sesión y todas las ventanas la heredan (las sesiones se invalidan al reiniciar). La primera ejecución tarda más porque Maven descarga las dependencias.
 
 ## Ejecución manual
 
-En terminales separadas, empezando por Eureka:
+Defina primero `JWT_SECRET` con la **misma** clave en todas las terminales de los microservicios (PowerShell):
+
+```powershell
+$env:JWT_SECRET = "una-clave-larga-y-aleatoria-de-32-caracteres-o-mas"
+```
+
+Luego, en terminales separadas y empezando por Eureka:
 
 ```bash
 cd backend/eureka-server        && mvnw spring-boot:run
@@ -83,7 +105,7 @@ El cliente de prueba tiene asociadas las mascotas *Firulais*, *Michi* y *Kiwi* c
 
 ## Funcionalidades
 
-- **Registro e inicio de sesión** contra `clientes-service`; la sesión (correo y rol `ADMIN`/`CLIENTE`) se guarda en `localStorage` y se redirige según el rol.
+- **Registro e inicio de sesión** contra `clientes-service` (contraseñas nuevas de 8 a 72 caracteres); el token, el correo y el rol (`ADMIN`/`CLIENTE`) se guardan en `localStorage` y se redirige según el rol. Si el token expira, se pide iniciar sesión de nuevo.
 - **Catálogo de servicios** y **Medicamentos y vacunas** cargados desde MySQL, con detalle actualizado por ID.
 - **Panel administrador:** listado de servicios y medicamentos, creación (`POST`), edición de todos los campos (`PUT`) y eliminación con confirmación (`DELETE`).
 - **Fichas médicas:**
@@ -93,13 +115,21 @@ El cliente de prueba tiene asociadas las mascotas *Firulais*, *Michi* y *Kiwi* c
 
 ## Endpoints principales
 
-| Servicio | Endpoints |
-|---|---|
-| Clientes | `POST /api/clientes/registro`, `POST /api/clientes/login`, `GET /api/clientes`, `PUT /api/clientes/{id}`, `DELETE /api/clientes/{id}` |
-| Medicamentos | `GET/POST /api/medicamentos`, `GET/PUT/DELETE /api/medicamentos/{id}` |
-| Servicios | `GET/POST /api/servicios`, `GET/PUT/DELETE /api/servicios/{id}` |
-| Fichas | `GET/POST /api/mascotas`, `GET /api/mascotas/cliente/{correo}`, `PUT/DELETE /api/mascotas/{id}`, `GET/POST /api/fichas`, `GET /api/fichas/cliente/{correo}`, `PUT/DELETE /api/fichas/{id}` |
-| Noticias | `GET/POST /api/noticias`, `PUT/DELETE /api/noticias/{id}` |
+| Servicio | Endpoints | Acceso |
+|---|---|---|
+| Clientes | `POST /api/clientes/registro`, `POST /api/clientes/login` | Público |
+| Clientes | `GET /api/clientes`, `DELETE /api/clientes/{id}` | `ADMIN` |
+| Clientes | `GET/PUT /api/clientes/{id}` | `ADMIN` o el propio cliente |
+| Medicamentos | `GET /api/medicamentos`, `GET /api/medicamentos/{id}` | Público |
+| Medicamentos | `POST /api/medicamentos`, `PUT/DELETE /api/medicamentos/{id}` | `ADMIN` |
+| Servicios | `GET /api/servicios`, `GET /api/servicios/{id}` | Público |
+| Servicios | `POST /api/servicios`, `PUT/DELETE /api/servicios/{id}` | `ADMIN` |
+| Fichas | `GET /api/mascotas/cliente/{correo}`, `GET /api/fichas/cliente/{correo}` | `ADMIN` o el dueño del correo |
+| Fichas | Resto de `/api/mascotas` y `/api/fichas` | `ADMIN` |
+| Noticias | `GET /api/noticias` | Público |
+| Noticias | `POST /api/noticias`, `PUT/DELETE /api/noticias/{id}` | `ADMIN` |
+
+Para probar endpoints protegidos en Swagger, haga login, copie el `token` y péguelo en el botón **Authorize**.
 
 ---
 

@@ -13,12 +13,31 @@ echo Las bases de datos y tablas se crean solas con Flyway.
 echo.
 pause
 
+rem Clave para firmar los tokens JWT (minimo 32 caracteres). Si no esta definida
+rem se genera una aleatoria solo para esta sesion; las ventanas abiertas con start la heredan.
+if not defined JWT_SECRET (
+    for /f "delims=" %%i in ('powershell -NoProfile -Command "[guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N')"') do set "JWT_SECRET=%%i"
+)
+if not defined JWT_SECRET (
+    echo No se pudo generar JWT_SECRET. Definala manualmente, por ejemplo:
+    echo   set JWT_SECRET=una-clave-larga-y-aleatoria-de-32-caracteres-o-mas
+    pause
+    exit /b 1
+)
+
 echo.
 echo [1/7] Iniciando eureka-server en el puerto 8761...
 start "eureka-server (8761)" /D "%RAIZ%backend\eureka-server" cmd /k mvnw.cmd spring-boot:run
 
 echo Esperando a que Eureka responda en http://localhost:8761 ...
+set /a INTENTOS=0
 :esperarEureka
+set /a INTENTOS+=1
+if %INTENTOS% gtr 24 (
+    echo Eureka no respondio en 2 minutos. Revise la ventana de eureka-server.
+    pause
+    exit /b 1
+)
 timeout /t 5 /nobreak > nul
 curl -s -o nul http://localhost:8761/ || goto esperarEureka
 echo Eureka disponible.
